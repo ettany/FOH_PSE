@@ -32,7 +32,7 @@ dotenv.config();
 // };
 
 const outputFile = "./swagger-output.json";
-const endpointsFiles = ["./routes"];
+const endpointsFiles =  ["./src/routes.ts"];;
 
 function swaggerDocs(app: Express, port: number) {
 	const doc = {
