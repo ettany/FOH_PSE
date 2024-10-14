@@ -58,10 +58,6 @@ app.use("/api/auth/signup", createAccountLimiter);
 // REST Routes
 app.use(require("./routes"));
 
-app.get('/', (req, res) => {
-	res.send('Hello, Render!');
-  });
-  
 app.listen(PORT, async () => {
 	console.log(`Example app listening at http://0.0.0.0:${PORT}`);
 	swaggerDocs(app, PORT);
