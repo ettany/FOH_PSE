@@ -8,7 +8,7 @@ export default defineConfig({
 		host: "0.0.0.0",
 		proxy: {
 			"/api": {
-				target: "http://0.0.0.0:3010",
+				target: "https://frolicking-gingersnap-da7582.netlify.app/api",
 				changeOrigin: false,
 				secure: false,
 				ws: true,

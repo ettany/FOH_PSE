@@ -13,5 +13,8 @@
 	},
 	"devDependencies": {
 		"@trivago/prettier-plugin-sort-imports": "^4.2.0"
+	},
+	"dependencies": {
+		"@netlify/functions": "^2.8.2"
 	}
 }
