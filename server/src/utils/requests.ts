@@ -21,6 +21,8 @@ export const fetchStockData = async (symbol: string): Promise<any> => {
 					"regularMarketPreviousClose",
 				],
 			});
+			
+			console.log("Quote data:", quote); // Log the quote data
 
 			const {
 				regularMarketPrice,
@@ -41,6 +43,8 @@ export const fetchStockData = async (symbol: string): Promise<any> => {
 			return stockData;
 		}
 	} catch (err: any) {
+		console.error("Error fetching stock data:", err); // Log the full error
+
 		if (err.result && Array.isArray(err.result)) {
 			let quote = err.result[0];
 
@@ -62,12 +66,12 @@ export const fetchStockData = async (symbol: string): Promise<any> => {
 			stockCache.set(cacheKey, stockData);
 			return stockData;
 		} else {
-			console.error(err);
-			console.error("Error fetching " + symbol + " stock data:", err);
-			throw new Error(err);
+			console.error("An error occurred:", err);
+			throw new Error(`Failed to fetch data for ${symbol}: ${err.message || err}`);
 		}
 	}
 };
+
 
 export const fetchHistoricalStockData = async (
 	symbol: string,
