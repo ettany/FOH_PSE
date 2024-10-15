@@ -21,12 +21,11 @@ const Database = require("./utils/db");
 const UserSchema = require("./models/user.model");
 
 // Middleware
-// Middleware
 app.use(cors({
-    origin: 'https://fohteam2.netlify.app', // Replace with your frontend URL
+    origin: 'https://fohteam2.netlify.app', // Ensure this matches your deployed frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
-    credentials: true, // If you need to allow cookies or authentication headers
 }));
+app.options('*', cors()); // Allow preflight requests for all routes
 app.use(morgan("tiny"));
 app.use(express.json());
 
