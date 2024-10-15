@@ -18,7 +18,7 @@ import {
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { SearchIcon } from "@chakra-ui/icons";
-
+import { REACT_APP_API_URL } from '../config';
 interface SearchResult {
 	symbol: string;
 	longname: string;
@@ -67,7 +67,7 @@ function SearchBox() {
 
 		const searchForStock = setTimeout(() => {
 			axios
-				.get(`${process.env.API_URL}/stocks/search/${query!}`)
+				.get(`${REACT_APP_API_URL}/stocks/search/${query!}`)
 				.then((res: { data: [SearchResult] }) => {
 					setResults(res.data);
 				});

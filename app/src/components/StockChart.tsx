@@ -6,7 +6,7 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { Box, Spinner, useTheme } from "@chakra-ui/react";
 // import { useColorMode } from "@chakra-ui/react";
-
+import { REACT_APP_API_URL } from '../config';
 const formatter = new Intl.NumberFormat("en-US", {
 	style: "currency",
 	currency: "USD",
@@ -138,7 +138,7 @@ export default function StockChart(props: { symbol: string }) {
 	const fetchStockData = (period: string = "1m") => {
 		setIsLoading(true);
 		axios
-			.get(`${process.env.API_URL}/stocks/${props.symbol}/historical?period=` + period)
+			.get(`${REACT_APP_API_URL}/stocks/${props.symbol}/historical?period=` + period)
 			.then((res) => {
 				// if (chartComponentRef !== null) {
 				// chartComponentRef.current!.chart!.series[0]!.setData(res.data);

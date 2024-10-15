@@ -17,7 +17,7 @@ interface LeaderboardUser {
 	username: string;
 	value: number;
 }
-
+import { REACT_APP_API_URL } from '../config';
 const format = new Intl.NumberFormat("en-US", {
 	style: "currency",
 	currency: "USD",
@@ -31,7 +31,7 @@ function Leaderboard() {
 
 	useEffect(() => {
 		axios
-			.get(`${process.env.API_URL}/api/user/leaderboard`)
+			.get(`${REACT_APP_API_URL}/api/user/leaderboard`)
 			.then((res) => {
 				setLeaderboard(res.data.users);
 			})

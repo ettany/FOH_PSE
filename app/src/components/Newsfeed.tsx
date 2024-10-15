@@ -15,7 +15,7 @@ import {
 	HStack,
 } from "@chakra-ui/react";
 import axios from "axios";
-
+import { REACT_APP_API_URL } from '../config';
 interface NewsItem {
 	title: string;
 	description: string;
@@ -55,12 +55,12 @@ function Newsfeed(props: { symbol: string }) {
 		useTheme()["components"]["Link"]["baseStyle"]["color"].split(".")[0];
 
 	useEffect(() => {
-		axios.get(`https://foh-pse.onrender.com/api/news/${props.symbol || ""}`).then((res) => {
+		axios.get(`${REACT_APP_API_URL}/news/${props.symbol || ""}`).then((res) => {
 			setNews(res.data.slice(0, 9));
 			setIsLoading(false);
 		});
 	}, []);
-console.log("linkAPI : ",process.env);
+console.log("linkAPI : ",REACT_APP_API_URL);
 
 	if (isLoading) {
 		return (

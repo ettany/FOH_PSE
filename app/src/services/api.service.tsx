@@ -1,9 +1,9 @@
 import axios from "axios";
 import tokens from "./tokens.service";
-
+import { REACT_APP_API_URL } from '../config';
 // Create an Axios instance
 const instance = axios.create({
-    baseURL: process.env.API_URL, // Fallback for local development
+    baseURL: REACT_APP_API_URL, // Fallback for local development
     headers: {
         "Content-Type": "application/json",
     },

@@ -22,7 +22,7 @@ import {
 	ArrowUpIcon,
 	MinusIcon,
 } from "@chakra-ui/icons";
-
+import { REACT_APP_API_URL } from '../config';
 const formatter = new Intl.NumberFormat("en-US", {
 	style: "currency",
 	currency: "USD",
@@ -53,7 +53,7 @@ function StockView() {
 		}
 
 		axios
-			.get(`${process.env.API_URL}/stocks/${symbol}/info`)
+			.get(`${REACT_APP_API_URL}/stocks/${symbol}/info`)
 			.then((res) => {
 				setStock({ ...res.data });
 			})
