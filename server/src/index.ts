@@ -23,7 +23,7 @@ const UserSchema = require("./models/user.model");
 // Middleware
 // Middleware
 app.use(cors({
-    origin: 'https://your-frontend.com', // Replace with your frontend URL
+    origin: 'https://fohteam2.netlify.app', // Replace with your frontend URL
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
     credentials: true, // If you need to allow cookies or authentication headers
 }));
