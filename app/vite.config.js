@@ -9,8 +9,8 @@ export default defineConfig({
 		proxy: {
 			"/api": {
 				target: "https://foh-pse.onrender.com",
-				changeOrigin: false,
-				secure: false,
+				changeOrigin: true,
+				secure: true,
 				ws: true,
 			},
 		},
