@@ -55,11 +55,12 @@ function Newsfeed(props: { symbol: string }) {
 		useTheme()["components"]["Link"]["baseStyle"]["color"].split(".")[0];
 
 	useEffect(() => {
-		axios.get(`${process.env.API_URL}/news/${props.symbol || ""}`).then((res) => {
+		axios.get(`https://foh-pse.onrender.com/api/news/${props.symbol || ""}`).then((res) => {
 			setNews(res.data.slice(0, 9));
 			setIsLoading(false);
 		});
 	}, []);
+console.log("linkAPI : ",process.env);
 
 	if (isLoading) {
 		return (
