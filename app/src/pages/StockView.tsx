@@ -53,7 +53,7 @@ function StockView() {
 		}
 
 		axios
-			.get(`/api/stocks/${symbol}/info`)
+			.get(`${process.env.API_URL}/stocks/${symbol}/info`)
 			.then((res) => {
 				setStock({ ...res.data });
 			})

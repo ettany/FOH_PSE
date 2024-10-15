@@ -31,7 +31,7 @@ function Leaderboard() {
 
 	useEffect(() => {
 		axios
-			.get("/api/user/leaderboard")
+			.get(`${process.env.API_URL}/api/user/leaderboard`)
 			.then((res) => {
 				setLeaderboard(res.data.users);
 			})

@@ -138,7 +138,7 @@ export default function StockChart(props: { symbol: string }) {
 	const fetchStockData = (period: string = "1m") => {
 		setIsLoading(true);
 		axios
-			.get(`/api/stocks/${props.symbol}/historical?period=` + period)
+			.get(`${process.env.API_URL}/stocks/${props.symbol}/historical?period=` + period)
 			.then((res) => {
 				// if (chartComponentRef !== null) {
 				// chartComponentRef.current!.chart!.series[0]!.setData(res.data);

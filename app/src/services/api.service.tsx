@@ -1,11 +1,12 @@
 import axios from "axios";
 import tokens from "./tokens.service";
 
+// Create an Axios instance
 const instance = axios.create({
-	baseURL: "/api",
-	headers: {
-		"Content-Type": "application/json",
-	},
+    baseURL: process.env.API_URL, // Fallback for local development
+    headers: {
+        "Content-Type": "application/json",
+    },
 });
 
 instance.interceptors.request.use(
