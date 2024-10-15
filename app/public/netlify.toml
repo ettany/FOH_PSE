@@ -1,10 +1,4 @@
-[[redirects]]
-  from = "/api/*"
-  to = "https://foh-pse.onrender.com/api/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
+[[redirect]]
   from = "/*"
   to = "/index.html"
   status = 200
