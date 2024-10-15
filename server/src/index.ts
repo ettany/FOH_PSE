@@ -21,7 +21,12 @@ const Database = require("./utils/db");
 const UserSchema = require("./models/user.model");
 
 // Middleware
-app.use(cors());
+// Middleware
+app.use(cors({
+    origin: 'https://your-frontend.com', // Replace with your frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
+    credentials: true, // If you need to allow cookies or authentication headers
+}));
 app.use(morgan("tiny"));
 app.use(express.json());
 

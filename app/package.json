@@ -20,6 +20,7 @@
 		"@types/jest": "^29.5.3",
 		"@types/node": "^20.4.10",
 		"axios": "^1.4.0",
+		"cors": "^2.8.5",
 		"emotion": "^11.0.0",
 		"framer-motion": "^10.16.0",
 		"highcharts": "^11.1.0",
