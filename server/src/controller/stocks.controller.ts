@@ -15,8 +15,13 @@ const getInfo = async (req: Request, res: Response) => {
 	#swagger.tags = ['Stock Data']
 	*/
 	const symbol = req.params.symbol;
+	try{
 	const quote = await fetchStockData(symbol);
 	res.status(200).send(quote);
+	}
+	catch (error) {
+	console.error("Error fetching " + symbol + " stock data:", error);
+	res.status(500).send("Error fetching " + symbol + " stock data:" + error);}
 };
 
 const getHistorical = async (req: Request, res: Response) => {
