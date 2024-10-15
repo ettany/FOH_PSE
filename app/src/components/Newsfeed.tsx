@@ -55,7 +55,8 @@ function Newsfeed(props: { symbol: string }) {
 		useTheme()["components"]["Link"]["baseStyle"]["color"].split(".")[0];
 
 	useEffect(() => {
-		axios.get("/api/news/" + (props.symbol || "")).then((res) => {
+		const apiUrl = `https://foh-pse.onrender.com/api/news/${props.symbol || ""}`;
+        axios.get(apiUrl).then((res) => {
 			setNews(res.data.slice(0, 9));
 			setIsLoading(false);
 		});
