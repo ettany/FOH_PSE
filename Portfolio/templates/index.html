@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Portfolio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="topnav">
+            <div class="pages">
+                <a class="active" href="{{ url_for('index') }}">Portfolio</a>
+                <a href="{{ url_for('trade') }}">Trade</a>
+                <a href="{{ url_for('log') }}">Log</a>
+            </div>
+            <div class="logout">
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        
+    <div id="portfolio">
+        <h1>Welcome Bob!</h1>
+        <div id="balance">
+            <table>
+                <tbody>
+                    <th>Current Balance</th>
+                    <tr>
+                        <td>$98,056.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div id="stocks_owned">
+        <table>
+            <thead>
+                <tr>
+                    <th>Stocks Owned</th>
+                    <th>Change %</th>
+                    <th>Profit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Example stock 1</td>
+                    <td>-0.05%</td>
+                    <td>-$5.67</td>
+                </tr>
+                <tr>
+                    <td>Example stock 2</td>
+                    <td>+1.35%</td>
+                    <td>+$5.20</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </main>
+
+        
+
+    <footer>
+        <p>&copy; 2024 My Stock Portfolio</p>
+    </footer>
+</body>
+</html>

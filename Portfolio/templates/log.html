@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <div class="topnav">
+            <div class="pages">
+            <a href="{{ url_for('index') }}">Portfolio</a>
+            <a href="{{ url_for('trade') }}">Trade</a>
+            <a class="active" href="{{ url_for('log') }}">Log</a>
+        </div>
+        <div class="logout">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+        </div>
+    </header>
+    <main>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Stock</th>
+                        <th>Action</th>
+                        <th>Timestamp</th>
+                        <th>Amount</th>
+                        <th>Balance</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ABC</td>
+                        <td>Ay Bee Cee</td>
+                        <td>Bought</td>
+                        <td>10/16/2024 at 10:46PM PST</td>
+                        <td>-$100.00</td>
+                        <td>$98,900.00</td>
+                    </tr>
+                    <tr>
+                        <td>CDE</td>
+                        <td>Cee Dee Eee</td>
+                        <td>Sold</td>
+                        <td>10/16/2024 at 10:55PM PST</td>
+                        <td>+$56.37</td>
+                        <td>$98,956.37</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+    
+</body>
+</html>

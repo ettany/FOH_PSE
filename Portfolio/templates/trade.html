@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <div class="topnav">
+            <div class="pages">
+            <a href="{{ url_for('index') }}">Portfolio</a>
+            <a class="active" href="{{ url_for('trade') }}">Trade</a>
+            <a href="{{ url_for('log') }}">Log</a>
+        </div>
+        <div class="logout">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+        </div>
+        
+    </header>
+    <main>
+        <section>
+            <h2>Stocks</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>SYMBOL</th>
+                        <th>NAME</th>
+                        <th>PRICE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- {% for ticker, data in stocks.items() %} -->
+                    <tr>
+                        <td>{{ ticker }}</td>
+                        <td>{{ data.name }}</td>
+                        <td>${{ data.price }}</td>
+                    </tr>
+                    <!-- {% endfor %} -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+    
+</body>
+</html>
