@@ -1,7 +1,13 @@
 from flask import Flask
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
+    # Enable CORS for all routes
+    CORS(app)
+    # Enable CORS for requests from the frontend on port 5001
+    CORS(app, resources={r"/api/*": {"origins": "http://127.0.0.1:5001"}})
+    
     app.config['DATABASE'] = 'database.db'
     app.config['SECRET_KEY'] = 'your_secret_key'  # Replace with your secret key
 
