@@ -10,8 +10,9 @@ def create_app():
 
     from .controllers.user_controller import user_bp
     from .controllers.stock_controller import stock_bp
-    app.register_blueprint(stock_bp, url_prefix='/api')  # Prefix for API routes
+    
+    # Register blueprints with their respective prefixes
     app.register_blueprint(user_bp, url_prefix='/api/user')
-    app.register_blueprint(stock_bp, url_prefix='/api/stock')
+    app.register_blueprint(stock_bp, url_prefix='/api/stock')  # One registration for stock_bp
 
     return app
