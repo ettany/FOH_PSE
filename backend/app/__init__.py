@@ -13,6 +13,6 @@ def create_app():
     
     # Register blueprints with their respective prefixes
     app.register_blueprint(user_bp, url_prefix='/api/user')
-    app.register_blueprint(stock_bp, url_prefix='/api/stock')  # One registration for stock_bp
+    app.register_blueprint(stock_bp, url_prefix='/api/stocks')  # One registration for stock_bp
 
     return app

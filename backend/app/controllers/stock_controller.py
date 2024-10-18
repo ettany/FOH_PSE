@@ -6,7 +6,7 @@ stock_bp = Blueprint('stock', __name__)
 
 API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')  # Load your API key from environment variables
 
-@stock_bp.route('/stocks', methods=['GET'])
+@stock_bp.route('/', methods=['GET'])
 def get_stocks():
     # Example list of stock symbols to fetch
     symbols = ['AAPL', 'GOOGL', 'TSLA']
