@@ -1,8 +1,11 @@
 from flask import Flask, render_template
-
+from dotenv import load_dotenv  # Import load_dotenvtoc
 def create_app():
     app = Flask(__name__)
 
+    # Load environment variables from .env file
+    load_dotenv()
+    
     @app.route('/')
     def index():
         return render_template('index.html')
