@@ -26,4 +26,4 @@ def proxy(path):
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(port=5001)  # Start the Flask app on port 5001
+    app.run(debug=True, port=5001)  # Start the Flask app on port 5001
