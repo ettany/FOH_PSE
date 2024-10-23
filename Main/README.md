@@ -4,6 +4,4 @@ FOH allows users to trade, sell, and adjust stocks whilst managing and viewing t
 
 ---
 
-export FLASK_APP=backend/server.py
-flask init-db
-flask --app backend/server.py run
+
