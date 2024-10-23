@@ -26,4 +26,7 @@ def create_app():
     def trade():
         return render_template('trade.html')
 
+    @app.route('/visualization')  # Corrected route for visualization
+    def visualization():  # Renamed the function to avoid conflict
+        return render_template('visualization.html')
     return app

@@ -22,9 +22,9 @@ def create_app():
 
     from .controllers.user_controller import user_bp
     from .controllers.stock_controller import stock_bp
-    
+    from .controllers.chart import stockChart_blueprint
     # Register blueprints with their respective prefixes
     app.register_blueprint(user_bp, url_prefix='/api/user')
     app.register_blueprint(stock_bp, url_prefix='/api/stocks')  # One registration for stock_bp
-
+    app.register_blueprint(stockChart_blueprint, url_prefix='/api/charts')  # One registration for stock_bp
     return app
