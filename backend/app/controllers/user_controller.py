@@ -1,17 +1,21 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from ..db import get_db
+from ..db import *
 
 user_bp = Blueprint('user', __name__)
 
-@user_bp.route('/login', methods=['POST'])
+@user_bp.route('/login', methods=['GET','POST'])
 def login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
 
-    db = get_db()
-    user = db.execute('SELECT * FROM user WHERE username = ?', (username,)).fetchone()
+        # Check the credentials against the database
+        db_conn = get_db()
+        user = db_conn.execute(
+            "SELECT * FROM user WHERE username = ? AND password = ?",
+            (username, password),
+        ).fetchone()
 
     if user and check_password_hash(user['password'], password):
         return jsonify({"message": "Login successful!", "user": user['username']}), 200
