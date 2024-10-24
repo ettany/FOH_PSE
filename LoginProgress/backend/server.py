@@ -69,7 +69,7 @@ def index():
     return render_template("index.html", username=username, totalCash=totalCash)
 
 
-@app.route("/trade")
+@app.route("/trade", methods=["GET", "POST"])
 def trade():
     stocks = {}
     tickers_file_path = os.path.join(
@@ -79,7 +79,7 @@ def trade():
     with open(tickers_file_path, "r") as file:
         tickers = [line.strip() for line in file.readlines()]
 
-    for ticker in tickers:
+    for ticker in tickers[:5]:
         stock = yf.Ticker(ticker)
         stock_info = stock.info
         stocks[ticker] = {
@@ -87,7 +87,23 @@ def trade():
             "price": stock_info.get("currentPrice"),
         }
 
-    return render_template("trade.html", stocks=stocks)
+    searched_stock = None
+
+    # Searching for a specific stock
+    if request.method == "POST":
+        search_ticker = request.form["stock_search"].upper()
+        stock = yf.Ticker(search_ticker)
+        stock_info = stock.info
+
+        # Check if the stock data exists and is valid
+        if "shortName" in stock_info and "currentPrice" in stock_info:
+            searched_stock = {
+                "ticker": search_ticker,
+                "name": stock_info["shortName"],
+                "price": stock_info["currentPrice"],
+            }
+
+    return render_template("trade.html", stocks=stocks, searched_stock=searched_stock)
 
 
 @app.route("/log")
@@ -117,7 +133,8 @@ def login():
                     session["totalCash"] = user["totalCash"]
                     return redirect(url_for("index"))
             else:
-                return "Invalid credentials"
+                flash("Invalid Credentials.")
+                return redirect(url_for("login"))
 
         except Exception as e:
             print(f"Error: {e}")
