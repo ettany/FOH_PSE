@@ -22,8 +22,9 @@
         
     </header>
     <main>
+        <h1>Stocks</h1>
         <section>
-            <h2>Stocks</h2>
+            
             <table>
                 <thead>
                     <tr>
@@ -33,17 +34,48 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- {% for ticker, data in stocks.items() %} -->
+                    {% for ticker, data in stocks.items() %}
                     <tr>
                         <td>{{ ticker }}</td>
                         <td>{{ data.name }}</td>
                         <td>${{ data.price }}</td>
                     </tr>
-                    <!-- {% endfor %} -->
+                    {% endfor %}
                 </tbody>
             </table>
         </section>
+        <section>
+            <h1>Search Stock</h1>
+            <form method="POST" action="{{ url_for('trade') }}">
+                <label for="stock_search">Enter Stock Symbol:</label>
+                <input type="text" id="stock_search" name="stock_search" required>
+                <input type="submit" value="Search">
+            </form>
+        </section>
+        {% if searched_stock %}
+        <section>
+            <h1>Searched Stock</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>SYMBOL</th>
+                        <th>NAME</th>
+                        <th>PRICE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ searched_stock.ticker }}</td>
+                        <td>{{ searched_stock.name }}</td>
+                        <td>${{ searched_stock.price }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        {% endif %}
     </main>
-    
+    <footer>
+        <p>&copy; 2024 Fox Of Hood</p>
+    </footer>
 </body>
 </html>
