@@ -24,9 +24,19 @@
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br>
         <br>
+        {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            {% for message in messages%}
+            <p class="flash">{{message}}</p>
+            {%endfor%}
+            {%endif%}
+            {%endwith%} 
         <input type="submit" value="Login" class="button">
         <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
       </form>
     </div>
+    <footer>
+        <p>&copy; 2024 Fox Of Hood</p>
+    </footer>
 </body>
 </html>
