@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import yfinance as yf
 import db
 from flask import Flask, render_template, redirect, url_for, session, flash
+from chart import stockChart_blueprint
 
 
 def create_app():
@@ -20,6 +21,8 @@ def create_app():
     app.config["DATABASE"] = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "database.db"
     )
+
+    app.register_blueprint(stockChart_blueprint)
 
     # Initialize the database commands
     db.init_app(app)
@@ -153,6 +156,11 @@ def admin():
 def logout():
     session.clear()
     return render_template("logout.html")
+
+
+@app.route("/visualization")
+def visualization():
+    return render_template("visualization.html")
 
 
 if __name__ == "__main__":
