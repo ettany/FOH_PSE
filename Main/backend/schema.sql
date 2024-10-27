@@ -6,21 +6,21 @@ CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username VARCHAR(100) UNIQUE NOT NULL,
   password VARCHAR(100) NOT NULL,
-  totalCash MONEY
+  totalCash DECIMAL(15,2)
 );
 
 CREATE TABLE portfolio (
     ticker VARCHAR(10) UNIQUE NOT NULL,
+    numShares INTEGER,
     id INTEGER,
     FOREIGN KEY (id) REFERENCES user(id)
 );
 
 CREATE TABLE eventLog (
     id INTEGER,
-    event TEXT NOT NULL CHECK(event IN ('Bought', 'Sold', 'Logged on', 'Logged out')),
+    eventName ENUM('Bought', 'Sold', 'Logged on', 'Logged out') NOT NULL,
     stockSold VARCHAR(10),
     stockBought VARCHAR(10),
-    timeLoggedOn DATETIME,
-    timeLoggedOff DATETIME,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id) REFERENCES user(id)
 );

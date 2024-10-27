@@ -44,6 +44,23 @@
             </table>
         </section>
     </main>
+    <form action="{{ url_for('buy') }}" method="POST">
+        <label for="ticker">Ticker:</label>
+        <input type="text" id="ticker" name="ticker" required>
     
+        <label for="shares">Shares:</label>
+        <input type="number" id="shares" name="shares" required>
+    
+        <input type="submit" value="Buy">
+    </form>
+    <form action="{{ url_for('sell') }}" method="POST">
+        <label for="ticker">Ticker:</label>
+        <input type="text" id="ticker" name="ticker" required>
+    
+        <label for="shares">Shares:</label>
+        <input type="number" id="shares" name="shares" required>
+    
+        <input type="submit" value="Sell">
+    </form>        
 </body>
 </html>
