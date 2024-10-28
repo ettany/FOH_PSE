@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Stock Visualization</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="topnav">
+            <div class="pages">
+                <a href="{{ url_for('index') }}">Portfolio</a>
+                <a href="{{ url_for('trade') }}">Trade</a>
+                <a href="{{ url_for('log') }}">Log</a>
+                <a class="active" href="{{ url_for('visualization') }}">Visualization</a>
+            </div>
+            <div class="logout">
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <section>
+            <h2>Stock Price Chart (Last 30 Days)</h2>
+            <canvas id="stockChart" width="400" height="200"></canvas>
+        </section>
+
+        <section>
+            <h2>Top 5 Stocks by Price</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>SYMBOL</th>
+                        <th>NAME</th>
+                        <th>PRICE</th>
+                    </tr>
+                </thead>
+                <tbody id="topStocksTable">
+                    <!-- Top stocks will be dynamically added here -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/visualization.js') }}"></script>
+</body>
+</html>
