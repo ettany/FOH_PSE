@@ -13,7 +13,7 @@
                 <a class="active" href="{{ url_for('index') }}">Portfolio</a>
                 <a href="{{ url_for('trade') }}">Trade</a>
                 <a href="{{ url_for('log') }}">Log</a>
-
+                <a href="{{ url_for('visualization') }}">Visualization</a>
             </div>
             <div class="logout">
                 <a href="{{ url_for('logout') }}">Logout</a>
@@ -23,19 +23,20 @@
     <main>
         
     <div id="portfolio">
-        <h1>Welcome Bob!</h1>
+        <h1>Welcome, {{username}}!</h1>
         <div id="balance">
             <table>
                 <tbody>
                     <th>Current Balance</th>
                     <tr>
-                        <td>$98,056.00</td>
+                        <td>${{totalCash}}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
     </div>
+    <section>
     <div id="stocks_owned">
         <table>
             <thead>
@@ -59,12 +60,10 @@
             </tbody>
         </table>
     </div>
+</section>
     </main>
-
-        
-
     <footer>
-        <p>&copy; 2024 My Stock Portfolio</p>
+        <p>&copy; 2024 Fox Of Hood</p>
     </footer>
 </body>
 </html>
