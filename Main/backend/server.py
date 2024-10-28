@@ -116,15 +116,15 @@ def buy():
 
     db_conn = db.get_db()
     id = db_conn.execute("SELECT id FROM user WHERE username = ?", (session['username'])).fetchone()
-    cost = db_conn.execute("SELECT totalCash FROM user WHERE username = ?", (session['username'])).fetchone()
-    if (totalCost <= cost):
+    cash = db_conn.execute("SELECT totalCash FROM user WHERE username = ?", (session['username'])).fetchone()
+    if (totalCost <= cash['totalCash']):
         #Set total cash to be lower
         db_conn.execute("UPDATE user SET totalCash = totalCash - ? WHERE username = ?", (totalCost, session['username']))
         #insert buying action into event log
         db_conn.execute("INSERT INTO eventLog (id, eventName, stockBought) VALUES (?, ?, ?)",
-            (id, 'Bought', ticker))
+            (id['id'], 'Bought', ticker))
         #insert stocks into portfolio
-        db_conn.execute("INSERT INTO portfolio (ticker, numShares, id) VALUES(?,?,?)", (ticker, numShares, id))
+        db_conn.execute("INSERT INTO portfolio (ticker, numShares, id) VALUES(?,?,?)", (ticker, numShares, id['id']))
         return redirect(url_for("trade"))
     else:
         "Error"
@@ -146,13 +146,13 @@ def sell():
 
     currentShares = db_conn.execute("SELECT numShares FROM portfolio WHERE id = ? AND ticker = ?", (id, ticker))
     
-    if (currentShares >= numShares):
+    if (currentShares['numShares'] >= numShares):
         #Set total cash to be higher
-        db_conn.execute("UPDATE user SET totalCash = totalCash + ? WHERE id = ?", (totalProfit, id))
+        db_conn.execute("UPDATE user SET totalCash = totalCash + ? WHERE id = ?", (totalProfit, id['id']))
         #insert selling action into event log
-        db_conn.execute("INSERT INTO eventLog (id, eventName, stockBought) VALUES (?, ?, ?)", (id, 'Sold', ticker))
+        db_conn.execute("INSERT INTO eventLog (id, eventName, stockBought) VALUES (?, ?, ?)", (id['id'], 'Sold', ticker))
         #remove number of shares from portfolio table -- maybe readjust to only print stocks with a number of shares greater than zero?
-        db_conn.execute("UPDATE portfolio SET numShares = numShares - ? WHERE id = ? AND ticker = ?", (numShares, id, ticker))
+        db_conn.execute("UPDATE portfolio SET numShares = numShares - ? WHERE id = ? AND ticker = ?", (numShares, id['id'], ticker))
         return redirect(url_for("trade"))
     else:
         "Error"
