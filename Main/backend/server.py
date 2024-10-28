@@ -4,7 +4,7 @@ import yfinance as yf
 import db
 from flask import Flask, render_template, redirect, url_for, session, flash
 from chart import stockChart_blueprint
-
+from flask_cors import CORS
 
 def create_app():
     app = Flask(
@@ -23,6 +23,8 @@ def create_app():
     app.config["DATABASE"] = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "database.db"
     )
+    # Enable CORS for all routes
+    CORS(app)
 
     app.register_blueprint(stockChart_blueprint)
 
