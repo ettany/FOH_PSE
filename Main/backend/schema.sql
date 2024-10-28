@@ -18,9 +18,10 @@ CREATE TABLE portfolio (
 
 CREATE TABLE eventLog (
     id INTEGER,
-    eventName ENUM('Bought', 'Sold', 'Logged on', 'Logged out') NOT NULL,
+    eventName TEXT CHECK(eventName IN ('Bought', 'Sold', 'Logged on', 'Logged out')) NOT NULL,
     stockSold VARCHAR(10),
     stockBought VARCHAR(10),
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id) REFERENCES user(id)
 );
+
