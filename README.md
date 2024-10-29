@@ -19,23 +19,25 @@ Berkan Guven: Facial Recognition Lead
 
 - Working database with user, portfolio, and eventLog tables​
 
-- Portfolio page ​
+- <b>Portfolio page ​</b>
 
     - displaying the specific user and their initial balance of $100,000​
 
     - other hardcoded UI elements for functional visualization​
 
-- Trade page ​
+- <b>Trade page </b>
 
-    - displaying updated stock prices for 5 stocks, ​
+  - displaying updated stock prices for 5 stocks with a table and graph​
 
-    - ability to search for a specific stock and display its details​
+  - ability to search for a specific stock and display its details​
 
-    - ability to search for a stock and buy or sell an amount of it​
+  - ability to buy or sell an amount of specific stock​
 
-    - graph of a default stock's performance over the last 30 days​
+  - graph of searched stock's performance over the last 30 days
+ <img width="500" alt="Screenshot 2024-10-29 at 11 25 47 AM" src="https://github.com/user-attachments/assets/f0ba1be4-36a2-49d3-adcc-21b5caa0a401">
+    
 
-- Log page​
+- <b>Log page​ </b>
 
     - Hardcoded UI elements for initial visualization
  
@@ -61,17 +63,3 @@ python frontend/interface.py
 
 ## MIDSEMESTER DEMO
 https://www.youtube.com/watch?v=jCZ426may-Q 
-
-## The final product deliverable should include:
-
-• Source code with compilation instructions (if any) and a list of required libraries.
-
-• Installer script (for Unix/Linux) or installer program (for MS-Windows)
-
-• All document artifacts generated during the software engineering lifecycle
-
-• An Installation Guide
-
-• A User’s Guide (with screen shots)
-
-• A Programmer’s Guide
