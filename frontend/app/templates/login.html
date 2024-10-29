@@ -5,26 +5,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Register</title>
+    <title>Login</title>
 </head>
 <body>
     <header>
         <div class="topnav">
             <div class="login">
-                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Register</a>
             </div>
         </div>
     </header>
-    <div class="rform">
-        <h2>Registration</h2>
-        <form id="registerForm">
+    <div class="lform">
+        <h2>Login</h2>
+        <form id="loginForm">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required><br><br>
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required><br><br>
             <p id="message" class="flash"></p>
-            <input type="submit" value="Register" class="button">
-            <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+            <input type="submit" value="Login" class="button">
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
         </form>
     </div>
     <footer>
@@ -32,29 +32,34 @@
     </footer>
 
     <script>
-        document.getElementById("registerForm").addEventListener("submit", async function(event) {
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
             event.preventDefault();  // Prevent form from reloading the page
 
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
 
             try {
-                const response = await fetch("/api/user/register", {
+                const response = await fetch("/api/user/login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
+                    credentials: 'include',  // This allows cookies to be sent and received
                     body: JSON.stringify({ username, password })
                 });
 
                 const data = await response.json();
                 const messageElement = document.getElementById("message");
-
                 if (response.ok) {
+                    // Store the user data in session storage as a JSON object
+                    sessionStorage.setItem("session", JSON.stringify({
+                        username: username,
+                        totalCash: data.totalCash
+                    }));
                     messageElement.textContent = data.message;
                     messageElement.style.color = "green";
-                    // Optionally redirect after successful registration
-                    window.location.href = "{{ url_for('login') }}";
+                    // Optionally redirect after successful login
+                    window.location.href = "{{ url_for('index') }}";
                 } else {
                     messageElement.textContent = data.error;
                     messageElement.style.color = "red";

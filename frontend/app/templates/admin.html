@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Admin</title>
+</head>
+<body>
+    <header>
+        <div class="topnav">
+
+            <div class="logout">
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <h2>Welcome to the Admin Page</h2>
+    </main>
+    <footer>
+        <p>&copy; 2024 Fox Of Hood</p>
+    </footer>
+</body>
+</html>
