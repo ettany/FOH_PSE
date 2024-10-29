@@ -1,15 +1,17 @@
 # FOH_PSE
 FOH allows users to trade, sell, and adjust stocks whilst managing and viewing their own stock portfolio. FOH will simulate a stock trading platform whilst implementing multi-user login and an administration account.
 
-export FLASK_APP=backend/server.py
 
+
+## Running backend
+export FLASK_APP=backend/app
 
 flask init-db
 
-
 flask --app backend/server.py run
 
-
+## Running frontend
+python frontend/interface.py
 
 
 ## The final product deliverable should include:
@@ -25,7 +27,3 @@ flask --app backend/server.py run
 • A User’s Guide (with screen shots)
 
 • A Programmer’s Guide
-
-• NOTE: All artifacts during project development and for the final release must be typed
-and electronically generated. A scanned submission of a diagram does not qualify as an
-electronically generated artifact. Artifacts not electronically generated will be discarded.
