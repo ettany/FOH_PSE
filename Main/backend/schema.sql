@@ -2,23 +2,6 @@ DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS portfolio;
 DROP TABLE IF EXISTS eventLog;
 
-<<<<<<< HEAD
--- CREATE TABLE user (
---   id INTEGER PRIMARY KEY AUTOINCREMENT,
---   username VARCHAR(100) UNIQUE NOT NULL,
---   password VARCHAR(100) NOT NULL,
---   totalCash MONEY
--- );
-
-CREATE TABLE user (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    totalCash REAL DEFAULT 10000.0
-);
-
-
-=======
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username VARCHAR(100) UNIQUE NOT NULL,
@@ -26,7 +9,6 @@ CREATE TABLE user (
   totalCash MONEY
 );
 
->>>>>>> origin/progress
 CREATE TABLE portfolio (
     ticker VARCHAR(10) UNIQUE NOT NULL,
     id INTEGER,

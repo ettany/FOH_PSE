@@ -5,13 +5,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<<<<<<< HEAD
+=======
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+>>>>>>> origin/progress
     <title>Document</title>
 </head>
 <body>
     <header>
         <div class="topnav">
             <div class="pages">
+<<<<<<< HEAD
             <a class="active" href="{{ url_for('portfolio') }}">Portfolio</a>
+=======
+            <a href="{{ url_for('index') }}">Portfolio</a>
+>>>>>>> origin/progress
             <a class="active" href="{{ url_for('trade') }}">Trade</a>
             <a href="{{ url_for('log') }}">Log</a>
         </div>
@@ -19,12 +27,20 @@
             <a href="{{ url_for('logout') }}">Logout</a>
         </div>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> origin/progress
     </header>
     <main>
         <h1>Stocks</h1>
         <section>
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> origin/progress
             <table>
                 <thead>
                     <tr>
@@ -73,6 +89,17 @@
             </table>
         </section>
         {% endif %}
+<<<<<<< HEAD
+=======
+        <section>
+            <h2>Stock Price Chart (Last 30 Days)</h2>
+            <canvas id="stockChart" width="400" height="200"></canvas>
+        </section>
+        <script src="{{ url_for('static', filename='js/visualization.js') }}"></script>
+        <script>
+            
+        </script>
+>>>>>>> origin/progress
     </main>
     <footer>
         <p>&copy; 2024 Fox Of Hood</p>

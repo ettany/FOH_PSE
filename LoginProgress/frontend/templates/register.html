@@ -25,12 +25,21 @@
         <input type="password" id="password" name="password" required><br>
         <br>
         {% with messages = get_flashed_messages()%}
+<<<<<<< HEAD
             {% if messages%}
                 {% for message in messages%}
                     <p class="flash {{ category }}">{{ message }}</p>
                 {%endfor%}
             {%endif%}
         {%endwith%}
+=======
+        {% if messages%}
+            {% for message in messages%}
+            <p class="flash">{{message}}</p>
+            {%endfor%}
+            {%endif%}
+            {%endwith%} 
+>>>>>>> origin/progress
         <input type="submit" value="Register" class="button">
         <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
       </form>
