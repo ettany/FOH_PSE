@@ -21,50 +21,69 @@
         </div>
     </header>
     <main>
-        
-    <div id="portfolio">
-        <h1>Welcome Bob!</h1>
-        <div id="balance">
-            <table>
-                <tbody>
-                    <th>Current Balance</th>
-                    <tr>
-                        <td>$98,056.00</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div id="portfolio">
+            <h1>Welcome, <span id="username"></span>!</h1>
+            <div id="balance">
+                <table>
+                    <tbody>
+                        <th>Current Balance</th>
+                        <tr>
+                            <td>$<span id="totalCash"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-
-    </div>
-    <div id="stocks_owned">
-        <table>
-            <thead>
-                <tr>
-                    <th>Stocks Owned</th>
-                    <th>Change %</th>
-                    <th>Profit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Example stock 1</td>
-                    <td>-0.05%</td>
-                    <td>-$5.67</td>
-                </tr>
-                <tr>
-                    <td>Example stock 2</td>
-                    <td>+1.35%</td>
-                    <td>+$5.20</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <section>
+            <div id="stocks_owned">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stocks Owned</th>
+                            <th>Change %</th>
+                            <th>Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Example stock 1</td>
+                            <td>-0.05%</td>
+                            <td>-$5.67</td>
+                        </tr>
+                        <tr>
+                            <td>Example stock 2</td>
+                            <td>+1.35%</td>
+                            <td>+$5.20</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
-
-        
-
     <footer>
-        <p>&copy; 2024 My Stock Portfolio</p>
+        <p>&copy; 2024 Fox Of Hood</p>
     </footer>
+
+    <script>
+        // Retrieve data from session storage
+        const sessionDataString = sessionStorage.getItem("session");
+    
+        // Check if session data exists and is not null
+        if (sessionDataString) {
+            try {
+                const sessionData = JSON.parse(sessionDataString);
+                document.getElementById("username").textContent = sessionData.username || "Guest";
+                document.getElementById("totalCash").textContent = sessionData.totalCash || "0.00";
+            } catch (error) {
+                console.error("Failed to parse session data:", error);
+                document.getElementById("username").textContent = "Guest";
+                document.getElementById("totalCash").textContent = "0.00";
+            }
+        } else {
+            document.getElementById("username").textContent = "Guest";
+            document.getElementById("totalCash").textContent = "0.00";
+        }
+    </script>
+    
 </body>
 </html>

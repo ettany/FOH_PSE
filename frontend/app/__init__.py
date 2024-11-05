@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 from dotenv import load_dotenv  # Import load_dotenvtoc
 def create_app():
     app = Flask(__name__)
@@ -7,8 +7,19 @@ def create_app():
     load_dotenv()
     
     @app.route('/')
+    @app.route("/register", methods=["GET", "POST"])
+    def register():
+        return render_template('register.html')
+    
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+        return render_template("login.html")
+    
+    @app.route("/index")
     def index():
-        return render_template('index.html')
+        username = session.get("username")
+        total_cash = session.get("totalCash", 0)  # Default to 0 if not set
+        return render_template('index.html', username=username, totalCash=total_cash)
 
     @app.route('/log')  # Adding the log route
     def log():
@@ -17,10 +28,6 @@ def create_app():
     @app.route('/logout')  # Adding the logout route
     def logout():
         return render_template('logout.html')
-
-    @app.route('/register')  # Adding the register route
-    def register():
-        return render_template('register.html')
 
     @app.route('/trade')  # Adding the trade route
     def trade():

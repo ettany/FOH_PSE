@@ -1,83 +1,102 @@
+/* Base styling */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    position: relative;
+}
+
+header {
+    background: #333434; 
+    color: #ffffff; 
+    text-align: center;
+    height: 50px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+/* Main content area */
+main {
+    padding: 20px;
+    margin-bottom: 60px; 
+}
+
+footer {
+    text-align: center;
+    padding: 10px 0;
+    background: #333434;
+    color: #ffffff;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Navigation styling */
+.topnav {
+    display: flex;  
+    justify-content: space-between;
+    padding: 0 5px;  
 }
 
 .topnav a {
-    float: left;
-    margin-left: 5px;
-    text-align: center;
     padding: 14px;
-    text-align: left;
     font-family: Arial, sans-serif;
     color: black;
     text-decoration: none;
     font-size: 17px;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+
+.topnav a:hover {
+    background-color: #F5F5F5;
+}
+
+.topnav a.active {
+    background-color: #F5F5F5;
 }
 
 .topnav .logout {
-    float: right;
-    
+    margin-left: auto; 
 }
 
 .logout a {
     color: white;
     background: #333434;
     border-radius: 10px;
-    margin-right: 5px;
-
+    padding: 10px 15px;  
 }
 
-.topnav a.active {
-    background-color: #F5F5F5;
+/* Table and chart container */
+.content-wrapper {
+    display: flex;
+    align-items: stretch; /* Ensure equal heights */
+    gap: 20px; 
+    margin: 20px 0; 
+}
+
+/* Table styling */
+.table-container {
+    flex: 1; 
+    max-width: 45%;
+    background: white; 
     border-radius: 10px;
-    align-items: center;
+    overflow: hidden; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+    display: flex; /* Flexbox for better layout */
+    flex-direction: column; /* Stack items vertically */
 }
 
-header {
-    background: #FFFFFF;
-    color: #ffffff;
-    text-align: center;
-    height: 50px;
-}
-
-#stocks_owned {
-    width: 60%;
-    height: 60%;
-    left: 0;
-    background-color: #F5F5F5;
-    border-radius: 10px;
-    border-color: black;
-   
-}
-
-#balance {
-    background-color: #F5F5F5;
-    float: right;
-    width: 20%;
-    margin-right: 20px;
-}
-
-h1 {
-    margin-left: 20px;
-    font-size: 20px;
-}
-
-main {
-    padding: 20px;
-}
-
-table {
+.table-container table {
     width: 100%;
     border-collapse: collapse;
-    margin-left: 20px;
-    margin-right: 20px;
+    height: 100%; /* Ensure table fills container */
 }
 
-th, td {
+table th, table td {
     padding: 10px;
     text-align: left;
     border: 1px solid #ccc;
@@ -92,15 +111,49 @@ tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-footer {
-    text-align: center;
-    position: fixed;
+/* Chart styling */
+.chart-container {
+    flex: 1; 
+    max-width: 50%; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
 
+#stocks-chart {
+    width: 100%; 
+    height: 100%; /* Match the height of the table */
+}
 
-    padding: 10px 0;
-    background: #333434;
-    color: #ffffff;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+/* Miscellaneous styling */
+#stocks_owned {
+    width: 60%;
+    height: 60%;
+    background-color: #F5F5F5;
+    border-radius: 10px;
+    border: 1px solid black;
+}
+
+#balance {
+    background-color: #F5F5F5;
+    width: 20%;
+    margin-right: 20px;
+    border-radius: 10px; 
+    padding: 10px; 
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .content-wrapper {
+        flex-direction: column; 
+    }
+
+    .table-container,
+    .chart-container {
+        max-width: 100%; 
+    }
+
+    #stocks-chart {
+        height: 300px; 
+    }
 }
