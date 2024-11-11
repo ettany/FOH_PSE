@@ -58,8 +58,12 @@
                     }));
                     messageElement.textContent = data.message;
                     messageElement.style.color = "green";
-                    // Optionally redirect after successful login
-                    window.location.href = "{{ url_for('index') }}";
+                    // Redirect based on the role
+                    if (username === "administration") {
+                        window.location.href = "{{ url_for('admin') }}";  // Redirect to admin page
+                    } else {
+                        window.location.href = "{{ url_for('index') }}";  // Redirect to user dashboard
+                    }
                 } else {
                     messageElement.textContent = data.error;
                     messageElement.style.color = "red";

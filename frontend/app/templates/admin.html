@@ -18,6 +18,41 @@
     </header>
     <main>
         <h2>Welcome to the Admin Page</h2>
+        <section>
+            <form action="{{ url_for('create_user') }}" method="POST">
+                <label>Username:</label>
+                <input type="text" id="username" name="username" required>
+                <br><br>
+                <label for="shares">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <br><br>
+                <button type="submit" value="Create" class="action_button">Create</button>
+            </form>
+        </section>
+        <br>
+        <section>
+            <table>
+                <thead>
+                    <tr>
+                        <th>USERNAME</th>
+                        <th>PASSWORD</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user['username'] }}</td>
+                        <td>{{ user['password'] }}</td>
+                        <td><form action="{{ url_for('delete_user') }}" method="post" style="display:inline;">
+                            <input type="hidden" name="username" value="{{ user['username'] }}">
+                            <button type="submit" class="action_button" onclick="return confirm('Are you sure you want to delete?');">Delete</button>
+                        </form></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
     </main>
     <footer>
         <p>&copy; 2024 Fox Of Hood</p>
