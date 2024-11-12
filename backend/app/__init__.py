@@ -2,7 +2,6 @@ from flask import Flask
 from flask_cors import CORS, cross_origin
 import os
 from dotenv import load_dotenv  # Import load_dotenv
-@cross_origin(supports_credentials=True)
 def create_app():
     app = Flask(__name__)
 
