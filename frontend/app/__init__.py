@@ -32,7 +32,11 @@ def create_app():
     @app.route('/trade')  # Adding the trade route
     def trade():
         return render_template('trade.html')
-
+    
+    @app.route('/admin')  # Corrected route for admin
+    def admin():  # Renamed the function to avoid conflict
+        return render_template('admin.html')
+    
     @app.route('/visualization')  # Corrected route for visualization
     def visualization():  # Renamed the function to avoid conflict
         return render_template('visualization.html')
