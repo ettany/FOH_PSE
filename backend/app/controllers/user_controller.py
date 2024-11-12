@@ -83,3 +83,45 @@ def index():
 def admin():
     username = session.get("username")
     return jsonify({"message": "Login successful!", 'username': username}),200
+
+@user_bp.route('/create_user', methods=['POST'])
+def create_user():
+    username = request.json.get("username")
+    password = request.json.get("password")
+    
+    if not username or not password:
+        return jsonify({"error": "Username and password are required"}), 400
+    
+    db_conn = db.get_db()
+    existing_user = db_conn.execute(
+        "SELECT * FROM user WHERE username = ?",
+        (username,)
+    ).fetchone()
+
+    if existing_user:
+        return jsonify({"error": "Username already taken"}), 409
+    
+    hashed_password = generate_password_hash(password)  # Hash the password for security
+    db_conn.execute(
+        "INSERT INTO user (username, password, totalCash) VALUES (?, ?, ?)",
+        (username, hashed_password, 100000),
+    )
+    db_conn.commit()
+    
+    return jsonify({"message": "User created successfully"}), 201
+
+
+@user_bp.route('/delete_user', methods=['DELETE'])
+def delete_user():
+    username_to_delete = request.json.get("username")
+    
+    if not username_to_delete or username_to_delete == 'administration':
+        return jsonify({"error": "Invalid operation"}), 400
+    
+    db_conn = db.get_db()
+    db_conn.execute(
+        "DELETE FROM user WHERE username = ?", (username_to_delete,)
+    )
+    db_conn.commit()
+    
+    return jsonify({"message": f"User '{username_to_delete}' deleted successfully"}), 200

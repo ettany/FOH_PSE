@@ -1,18 +1,18 @@
 from flask import Flask
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import os
 from dotenv import load_dotenv  # Import load_dotenv
+@cross_origin(supports_credentials=True)
 def create_app():
     app = Flask(__name__)
 
     # Load environment variables from .env file
     load_dotenv()
 
-    # Enable CORS for all routes
-    CORS(app)
-
     # Enable CORS for requests from the frontend on port 5001
-    CORS(app, resources={r"/api/*": {"origins": os.getenv('UI_URL')}})
+    # CORS(app, resources={r"/api/*": {"origins": os.getenv('UI_URL')}})
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    
     
     app.config['DATABASE'] = 'database.db'
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')  
