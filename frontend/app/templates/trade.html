@@ -82,7 +82,7 @@
 
         async function fetchStockDataAndDrawChart() {
             try {
-                const response = await fetch('/api/stock/stocklist'); 
+                const response = await fetch('http://127.0.0.1:5000/api/stock/stocklist'); 
                 if (!response.ok) throw new Error('Network response was not ok');
                 
                 const stocks = await response.json();
@@ -116,7 +116,7 @@
             if (!searchInput) return; // Don't search if input is empty
 
             try {
-                const response = await fetch('/api/stock/stockSearch', {
+                const response = await fetch('http://127.0.0.1:5000/api/stock/stockSearch', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -168,7 +168,7 @@
             const sessionData = JSON.parse(sessionDataString);
             const userSession = sessionData.username || "Guest";
             try {
-                const response = await fetch(`/api/transaction/${action}`, {
+                const response = await fetch(`http://127.0.0.1:5000/api/transaction/${action}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

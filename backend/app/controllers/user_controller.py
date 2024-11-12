@@ -92,7 +92,7 @@ def create_user():
     if not username or not password:
         return jsonify({"error": "Username and password are required"}), 400
     
-    db_conn = db.get_db()
+    db_conn = get_db()
     existing_user = db_conn.execute(
         "SELECT * FROM user WHERE username = ?",
         (username,)
@@ -118,7 +118,7 @@ def delete_user():
     if not username_to_delete or username_to_delete == 'administration':
         return jsonify({"error": "Invalid operation"}), 400
     
-    db_conn = db.get_db()
+    db_conn = get_db()
     db_conn.execute(
         "DELETE FROM user WHERE username = ?", (username_to_delete,)
     )

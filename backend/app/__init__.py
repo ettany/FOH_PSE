@@ -10,7 +10,7 @@ def create_app():
 
     # Enable CORS for requests from the frontend on port 5001
     # CORS(app, resources={r"/api/*": {"origins": os.getenv('UI_URL')}})
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, support_credentials=True)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     
     
     app.config['DATABASE'] = 'database.db'

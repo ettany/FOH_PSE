@@ -55,7 +55,7 @@
         // Fetch users on page load
         async function fetchUsers() {
             try {
-                const response = await fetch("/api/user/list", { method: "GET" });
+                const response = await fetch("http://127.0.0.1:5000/api/user/list", { method: "GET" });
                 const users = await response.json();
                 const userTable = document.getElementById("userTable");
 
@@ -87,7 +87,7 @@
             const password = document.getElementById("password").value;
 
             try {
-                const response = await fetch("/api/user/create", {
+                const response = await fetch("http://127.0.0.1:5000/api/user/create", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, password })
@@ -107,7 +107,7 @@
         async function deleteUser(username) {
             if (confirm(`Are you sure you want to delete ${username}?`)) {
                 try {
-                    const response = await fetch("/api/user/delete", {
+                    const response = await fetch("http://127.0.0.1:5000/api/user/delete", {
                         method: "DELETE",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ username })
