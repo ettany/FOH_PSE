@@ -60,7 +60,7 @@
                     messageElement.style.color = "green";
                     // Redirect based on the role
                     if (username === "administration") {
-                        window.location.href = "{{ url_for('admin') }}";  // Redirect to admin page
+                        // window.location.href = "{{ url_for('admin') }}";  // Redirect to admin page
                     } else {
                         window.location.href = "{{ url_for('index') }}";  // Redirect to user dashboard
                     }
