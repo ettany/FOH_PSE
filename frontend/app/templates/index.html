@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Portfolio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="topnav">
+            <div class="pages">
+                <a class="active" href="{{ url_for('index') }}">Portfolio</a>
+                <a href="{{ url_for('trade') }}">Trade</a>
+                <a href="{{ url_for('log') }}">Log</a>
+                <a href="{{ url_for('visualization') }}">Visualization</a>
+            </div>
+            <div class="logout">
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div id="portfolio">
+            <h1>Welcome, <span id="username"></span>!</h1>
+            <div id="balance">
+                <table>
+                    <tbody>
+                        <th>Current Balance</th>
+                        <tr>
+                            <td>$<span id="totalCash"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <section>
+            <div id="stocks_owned">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stocks Owned</th>
+                            <th>Change %</th>
+                            <th>Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Example stock 1</td>
+                            <td>-0.05%</td>
+                            <td>-$5.67</td>
+                        </tr>
+                        <tr>
+                            <td>Example stock 2</td>
+                            <td>+1.35%</td>
+                            <td>+$5.20</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Fox Of Hood</p>
+    </footer>
+
+    <script>
+        // Retrieve data from session storage
+        const sessionDataString = sessionStorage.getItem("session");
+
+        // Check if session data exists and is not null
+        if (sessionDataString) {
+            try {
+                const sessionData = JSON.parse(sessionDataString);
+                document.getElementById("username").textContent = sessionData.username || "Guest";
+                document.getElementById("totalCash").textContent = sessionData.totalCash || "0.00";
+            } catch (error) {
+                console.error("Failed to parse session data:", error);
+                document.getElementById("username").textContent = "Guest";
+                document.getElementById("totalCash").textContent = "0.00";
+            }
+        } else {
+            document.getElementById("username").textContent = "Guest";
+            document.getElementById("totalCash").textContent = "0.00";
+        }
+    </script>
+
+</body>
+</html>
