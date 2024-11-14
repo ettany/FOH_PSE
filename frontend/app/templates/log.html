@@ -5,56 +5,71 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Document</title>
+    <title>Log</title>
 </head>
 <body>
     <header>
         <div class="topnav">
             <div class="pages">
-            <a href="{{ url_for('index') }}">Portfolio</a>
-            <a href="{{ url_for('trade') }}">Trade</a>
-            <a class="active" href="{{ url_for('log') }}">Log</a>
-        </div>
-        <div class="logout">
-            <a href="{{ url_for('logout') }}">Logout</a>
-        </div>
+                <a href="{{ url_for('index') }}">Portfolio</a>
+                <a href="{{ url_for('trade') }}">Trade</a>
+                <a class="active" href="{{ url_for('log') }}">Log</a>
+            </div>
+            <div class="logout">
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
         </div>
     </header>
+
     <main>
+        <h2>Log</h2>
         <div>
             <table>
                 <thead>
                     <tr>
-                        <th>Symbol</th>
-                        <th>Stock</th>
-                        <th>Action</th>
-                        <th>Timestamp</th>
-                        <th>Amount</th>
-                        <th>Balance</th>
-
+                        <th>id</th>
+                        <th>eventName</th>
+                        <th>stockSold</th>
+                        <th>stockBought</th>
+                        <th>date</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>ABC</td>
-                        <td>Ay Bee Cee</td>
-                        <td>Bought</td>
-                        <td>10/16/2024 at 10:46PM PST</td>
-                        <td>-$100.00</td>
-                        <td>$98,900.00</td>
-                    </tr>
-                    <tr>
-                        <td>CDE</td>
-                        <td>Cee Dee Eee</td>
-                        <td>Sold</td>
-                        <td>10/16/2024 at 10:55PM PST</td>
-                        <td>+$56.37</td>
-                        <td>$98,956.37</td>
-                    </tr>
+                <tbody id="logTable">
+                    <!-- Log entries will be populated here via JavaScript -->
                 </tbody>
             </table>
         </div>
     </main>
-    
+
+    <script>
+        // Fetch log entries on page load
+        async function fetchLogEntries() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/api/log/entries", { method: "GET" });
+                if (!response.ok) throw new Error("Error fetching log entries");
+
+                const logEntries = await response.json();
+                const logTable = document.getElementById("logTable");
+                logTable.innerHTML = ''; // Clear previous data
+
+                logEntries.forEach(entry => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${entry.id}</td>
+                        <td>${entry.eventName}</td>
+                        <td>${entry.stockSold}</td>
+                        <td>${entry.stockBought}</td>
+                        <td>${entry.date}</td>
+                    `;
+                    logTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error fetching log entries:", error);
+                alert("Failed to load log entries. Please try again.");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchLogEntries);
+    </script>
 </body>
 </html>
