@@ -25,32 +25,24 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Symbol</th>
-                        <th>Stock</th>
-                        <th>Action</th>
-                        <th>Timestamp</th>
-                        <th>Amount</th>
-                        <th>Balance</th>
+                        <th>id</th>
+                        <th>eventName</th>
+                        <th>stockSold</th>
+                        <th>stockBought</th>
+                        <th>date</th>
 
                     </tr>
                 </thead>
                 <tbody>
+                    {% for entry in log_entries %}
                     <tr>
-                        <td>ABC</td>
-                        <td>Ay Bee Cee</td>
-                        <td>Bought</td>
-                        <td>10/16/2024 at 10:46PM PST</td>
-                        <td>-$100.00</td>
-                        <td>$98,900.00</td>
+                        <td>{{ entry['id'] }}</td>
+                        <td>{{ entry['eventName'] }}</td>
+                        <td>{{ entry['stockSold'] }}</td>
+                        <td>{{ entry['stockBought'] }}</td>
+                        <td>{{ entry['date'] }}</td>
                     </tr>
-                    <tr>
-                        <td>CDE</td>
-                        <td>Cee Dee Eee</td>
-                        <td>Sold</td>
-                        <td>10/16/2024 at 10:55PM PST</td>
-                        <td>+$56.37</td>
-                        <td>$98,956.37</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
