@@ -125,3 +125,13 @@ def delete_user():
     db_conn.commit()
     
     return jsonify({"message": f"User '{username_to_delete}' deleted successfully"}), 200
+
+
+@user_bp.route('/list', methods=['GET'])
+def list_users():
+    print("Listing users...")  # Debugging print
+    db_conn = get_db()
+    cursor = db_conn.execute("SELECT username FROM user")
+    users = [{"username": row["username"]} for row in cursor.fetchall()]
+    return jsonify(users), 200
+
