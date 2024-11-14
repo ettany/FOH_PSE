@@ -20,10 +20,13 @@ def create_app():
     init_app(app)
 
     from .controllers.user_controller import user_bp
+    from .controllers.log_controller import log_bp
     from .controllers.stock_controller import stock_bp
     from .controllers.transaction_controller import transaction_bp
     # Register blueprints with their respective prefixes
     app.register_blueprint(user_bp, url_prefix='/api/user')
+    app.register_blueprint(log_bp, url_prefix='/api/log')
     app.register_blueprint(stock_bp, url_prefix='/api/stock')  # One registration for stock_bp
     app.register_blueprint(transaction_bp, url_prefix='/api/transaction')  # One registration for transaction
+    
     return app
