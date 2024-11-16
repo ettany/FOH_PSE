@@ -16,7 +16,7 @@
                 <a href="{{ url_for('visualization') }}">Visualization</a>
             </div>
             <div class="logout">
-                <a href="{{ url_for('logout') }}">Logout</a>
+                <a onclick=logout() href="#">Logout</a>
             </div>
         </div>
     </header>
@@ -26,9 +26,9 @@
             <div id="balance">
                 <table>
                     <tbody>
-                        <th>Current Balance</th>
                         <tr>
-                            <td>$<span id="totalCash"></span></td>
+                            <th>Current Balance</th>
+                            <td>$<span id="totalCash">0.00</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -65,33 +65,67 @@
     </footer>
 
     <script>
-        // Retrieve data from session storage
-        const sessionDataString = sessionStorage.getItem("session");
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> ad873c83acb39d2a4fd3bd701110df314766704c
-        // Check if session data exists and is not null
-        if (sessionDataString) {
-            try {
-                const sessionData = JSON.parse(sessionDataString);
-                document.getElementById("username").textContent = sessionData.username || "Guest";
-                document.getElementById("totalCash").textContent = sessionData.totalCash || "0.00";
-            } catch (error) {
-                console.error("Failed to parse session data:", error);
-                document.getElementById("username").textContent = "Guest";
-                document.getElementById("totalCash").textContent = "0.00";
-            }
-        } else {
+        document.addEventListener("DOMContentLoaded", () => {
+            // Set default values for username and balance
             document.getElementById("username").textContent = "Guest";
             document.getElementById("totalCash").textContent = "0.00";
-        }
-    </script>
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> ad873c83acb39d2a4fd3bd701110df314766704c
+            // Retrieve data from session storage for username
+            const sessionDataString = sessionStorage.getItem("session");
+            if (sessionDataString) {
+                try {
+                    const sessionData = JSON.parse(sessionDataString);
+                    document.getElementById("username").textContent = sessionData.username || "Guest";
+                } catch (error) {
+                    console.error("Failed to parse session data:", error);
+                }
+            }
+
+            // Fetch and display the current balance from the server
+            async function fetchBalance() {
+                try {
+                    const response = await fetch("http://127.0.0.1:5000/api/user/balance", {
+                        method: "GET",
+                        credentials: 'include', // Make sure credentials are included
+                    });
+                    if (!response.ok) throw new Error("Error fetching current balance");
+
+                    const data = await response.json();
+                    document.getElementById("totalCash").textContent = parseFloat(data.totalCash).toFixed(2);
+
+                } catch (error) {
+                    console.error("Error fetching current balance:", error);
+                    alert("Failed to load current balance. Please try again.");
+                }
+            }
+
+            fetchBalance();
+        });
+
+        async function logout() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/user/logout', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(result.message); // Show success message
+                    window.location.href = "{{ url_for('logout') }}"; // Redirect to the homepage or login page
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.error}`); // Show error message
+                }
+            } catch (error) {
+                console.error('Logout failed:', error);
+                alert('An unexpected error occurred. Please try again.');
+            }
+        }
+
+    </script>
 </body>
 </html>
