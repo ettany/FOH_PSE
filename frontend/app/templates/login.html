@@ -41,10 +41,10 @@
             try {
                 const response = await fetch("http://127.0.0.1:5000/api/user/login", {
                     method: "POST",
+                    credentials: 'include', // ensures the cookies are sent for session maintenence
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    // credentials: 'include',  // This allows cookies to be sent and received
                     body: JSON.stringify({ username, password })
                 });
 
@@ -60,7 +60,7 @@
                     messageElement.style.color = "green";
                     // Redirect based on the role
                     if (username === "administration") {
-                        // window.location.href = "{{ url_for('admin') }}";  // Redirect to admin page
+                        window.location.href = "{{ url_for('admin') }}";  // Redirect to admin page
                     } else {
                         window.location.href = "{{ url_for('index') }}";  // Redirect to user dashboard
                     }
