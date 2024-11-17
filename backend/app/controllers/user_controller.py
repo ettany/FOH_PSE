@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, flash, session, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..db import get_db
+import datetime
 
 user_bp = Blueprint('user', __name__)
 
@@ -14,6 +15,7 @@ def login():
     # Check the credentials against the database
     try:
         db_conn = get_db()
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         user = db_conn.execute(
             "SELECT * FROM user WHERE username = ?",
             (username,)
@@ -22,19 +24,68 @@ def login():
         if user and check_password_hash(user['password'], password):
             session["username"] = username
             session["totalCash"] = user["totalCash"]
+            session["user_id"] = user["id"]
             session.permanent = True  # Make session permanent if desired
+            try:
+                db_conn.execute(
+                "INSERT INTO eventLog (id, eventName, stockSold, stockBought, date) VALUES (?, ?, NULL, NULL, ?)",
+                (user["id"], "Logged on", timestamp)
+                )
+                db_conn.commit()
+
+            except Exception:
+                print("Error adding login to eventLog")
+                return jsonify({"error": "Error adding login to eventLog. Please try again."}), 500
+            
             print("Session set: ", session)
             if username == "administration":
 
                 return jsonify({"message": "Admin login successful!", "user": username}), 200
             else:
-                return jsonify({"message": "User login successful!", "user": username, "totalCash": user["totalCash"]}), 200
+                return jsonify({"message": "User login successful!", "user": username, "totalCash": user["totalCash"], "user_id": user["id"]}), 200
         else:
             return jsonify({"error": "Invalid username or password!"}), 401
 
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": "Database connection error"}), 500
+
+@user_bp.route('/logout', methods=['POST'])
+def logout():
+    try:
+        # Retrieve user_id from session before clearing it
+        print("Session: ", session)
+        user_id = session.get("user_id")
+        print(f"Logging out user with ID: {user_id}")
+
+        if not user_id:
+            return jsonify({"error": "No user is currently logged in!"}), 400
+
+        # Get the current timestamp
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Log the logout event
+        db_conn = get_db()
+        try:
+            db_conn.execute(
+                "INSERT INTO eventLog (id, eventName, stockSold, stockBought, date) VALUES (?, ?, NULL, NULL, ?)",
+                (user_id, "Logged out", timestamp)
+            )
+            db_conn.commit()
+        except Exception as e:
+            print(f"Error adding logout to eventLog: {e}")
+            return jsonify({"error": "Error adding logout to eventLog. Please try again."}), 500
+
+        # Clear the session
+        session.clear()
+
+        return jsonify({"message": "User logged out successfully!"}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
+
 
 @user_bp.route('/register', methods=['POST'])
 def register():
@@ -134,4 +185,27 @@ def list_users():
     cursor = db_conn.execute("SELECT username FROM user")
     users = [{"username": row["username"]} for row in cursor.fetchall()]
     return jsonify(users), 200
+
+@user_bp.route('/balance', methods=['GET'])
+def get_user_balance():
+    try:
+        # Ensure the user is authenticated
+        user_id = session.get('user_id')
+        print("user id: ", user_id)
+        if not user_id:
+            return jsonify({"error": "User not authenticated"}), 403
+
+        # Get the user's balance from the database
+        db_conn = get_db()
+        cursor = db_conn.execute("SELECT totalCash FROM user WHERE id = ?", (user_id,))
+        user = cursor.fetchone()
+
+        if user:
+            return jsonify({"totalCash": user["totalCash"]}), 200
+        else:
+            return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        print(f"Error fetching user balance: {e}")
+        return jsonify({"error": "Failed to fetch balance"}), 500
+
 
