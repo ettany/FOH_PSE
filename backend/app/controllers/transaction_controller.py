@@ -57,7 +57,7 @@ def sell():
     totalProfit = numShares * stock_info.get("currentPrice", 0)
 
     db_conn = get_db()
-    session['username']='ngoc'
+    session['username']=data.get("username")
     id = db_conn.execute(
         "SELECT id FROM user WHERE username = ?", (session['username'],)).fetchone()
     if id is None:
