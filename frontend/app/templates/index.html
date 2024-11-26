@@ -27,19 +27,7 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="topnav">
-            <div class="pages">
-                <a class="active" href="{{ url_for('index') }}">Portfolio</a>
-                <a href="{{ url_for('trade') }}">Trade</a>
-                <a href="{{ url_for('log') }}">Log</a>
-                <a href="{{ url_for('visualization') }}">Visualization</a>
-            </div>
-            <div class="logout">
-                <a href="{{ url_for('logout') }}">Logout</a>
-            </div>
-        </div>
-    </header>
+    {% include 'header.html' %}
     <main>
         <div id="portfolio">
             <h1>Welcome, <span id="username"></span>!</h1>
@@ -83,7 +71,9 @@
         <p>&copy; 2024 Fox Of Hood</p>
     </footer>
 
-    <script>
+    <script type="module">
+        import { updateChart } from "{{ url_for('static', filename='utils/chartUtils.js') }}";
+
         // Fetch user data and update portfolio
         async function fetchUserData() {
             const sessionDataString = sessionStorage.getItem("session");
@@ -158,60 +148,6 @@
                 console.error("Error fetching portfolio:", error);
                 alert("Failed to load portfolio. Please try again.");
             }
-        }
-
-        // Update the chart with new data
-        function updateChart(data) {
-            const margin = { top: 20, right: 30, bottom: 40, left: 60 };
-            const width = 600 - margin.left - margin.right;
-            const height = 400 - margin.top - margin.bottom;
-
-            const svg = d3.select('#stocks-chart svg g');
-
-            // Update scales
-            const xPadding = (d3.max(data, d => d.change) - d3.min(data, d => d.change)) * 0.1;
-            const yPadding = (d3.max(data, d => d.profit) - d3.min(data, d => d.profit)) * 0.1;
-
-            const x = d3.scaleLinear()
-                .domain([
-                    Math.min(0, d3.min(data, d => d.change) - xPadding),
-                    d3.max(data, d => d.change) + xPadding
-                ])
-                .range([0, width]);
-
-            const y = d3.scaleLinear()
-                .domain([
-                    d3.min(data, d => d.profit) - yPadding,
-                    d3.max(data, d => d.profit) + yPadding
-                ])
-                .range([height, 0]);
-
-            // Update axes
-            svg.select('.x-axis')
-                .attr('transform', `translate(0,${y(0)})`)
-                .transition().duration(750)
-                .call(d3.axisBottom(x).tickFormat(d => d + "%"));
-
-            svg.select('.y-axis')
-                .transition().duration(750)
-                .call(d3.axisLeft(y).tickFormat(d => "$" + d));
-
-            // Bind data and update dots
-            const dots = svg.selectAll('.dot').data(data);
-
-            // Enter
-            dots.enter()
-                .append('circle')
-                .attr('class', 'dot')
-                .attr('r', 6)
-                .merge(dots)
-                .transition().duration(750)
-                .attr('cx', d => x(d.change))
-                .attr('cy', d => y(d.profit))
-                .attr('fill', d => d.profit >= 0 ? 'steelblue' : 'red');
-
-            // Exit
-            dots.exit().remove();
         }
 
         // Initialize
