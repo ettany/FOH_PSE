@@ -82,9 +82,9 @@
 
         async function fetchStockDataAndDrawChart() {
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/stock/stocklist'); 
+                const response = await fetch('http://127.0.0.1:5000/api/stock/stocklist');
                 if (!response.ok) throw new Error('Network response was not ok');
-                
+
                 const stocks = await response.json();
                 const tableBody = document.getElementById('stocks-table-body');
                 const stockPrices = [];
@@ -125,7 +125,7 @@
                 });
 
                 if (!response.ok) throw new Error('Network response was not ok');
-                
+
                 const result = await response.json();
                 const resultTableBody = document.getElementById('search-results-table-body');
                 const resultChartContainer = document.getElementById('search-results-chart');
@@ -184,6 +184,13 @@
 
                 const result = await response.json();
                 alert(`Transaction successful: ${action} ${quantity} of ${symbol}`);
+
+
+
+                // Call fetchPortfolio on the parent window (index.html) if open
+                if (window.opener && !window.opener.closed) {
+                    window.opener.fetchPortfolio();
+                }
             } catch (error) {
                 alert(error.message);
             }

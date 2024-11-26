@@ -203,8 +203,83 @@
         document.getElementById("totalCash").textContent = totalCash || "0.00";
     }
 }
+    // Fetch and display stocks owned
+    async function fetchPortfolio() {
+                try {
+                    const response = await fetch("http://127.0.0.1:5000/api/transaction/portfolio", {
+                        method: "GET",
+                        credentials: "include",
+                    });
+
+                    if (!response.ok) throw new Error("Error fetching portfolio data");
+
+                    const data = await response.json();
+
+                    const stocksTableBody = document.querySelector("#stocks_owned tbody");
+                    stocksTableBody.innerHTML = ""; // Clear existing rows
+
+                    data.forEach(stock => {
+                        const row = document.createElement("tr");
+
+                    // Create table cells
+                        const stockCell = document.createElement("td");
+                        stockCell.textContent = `${stock.ticker} (${stock.numShares} shares)`;
+
+                        const changeCell = document.createElement("td");
+                        changeCell.textContent = `${stock.price_change_percent.toFixed(2)}%`;
+                        changeCell.style.color = stock.price_change_percent >= 0 ? "green" : "red";
+
+                        const profitCell = document.createElement("td");
+                        profitCell.textContent = `$${stock.price_change.toFixed(2)}`;
+                        profitCell.style.color = stock.price_change >= 0 ? "green" : "red";
+
+                        // Append cells to the row
+                        row.appendChild(stockCell);
+                        row.appendChild(changeCell);
+                        row.appendChild(profitCell);
+
+                        // Append the row to the table body
+                        stocksTableBody.appendChild(row);
+                        });
+                    } catch (error) {
+                        console.error("Error fetching portfolio:", error);
+                        alert("Failed to load portfolio. Please try again.");
+                }
+            }
+
+            async function logout(event) {
+                event.preventDefault();
+                const redirectUrl = event.target.getAttribute('data-url');
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/api/user/logout', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        alert(result.message); // Show success message
+                        window.location.href = "{{ url_for('logout') }}"; // Redirect to the homepage or login page
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.error}`); // Show error message
+                    }
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                    alert('An unexpected error occurred. Please try again.');
+                }
+            }
     // Call fetchUserData on page load
-    document.addEventListener('DOMContentLoaded', fetchUserData);
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchUserData();
+        setInterval(() => {
+            // fetchUserData();
+            fetchPortfolio();
+        }, 3000);
+    });
     </script>
 </body>
 </html>
