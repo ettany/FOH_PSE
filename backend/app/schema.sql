@@ -6,7 +6,7 @@ CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username VARCHAR(100) UNIQUE NOT NULL,
   password VARCHAR(100) NOT NULL,
-  totalCash DECIMAL(15,2)
+  totalCash DECIMAL(15,2) DEFAULT 100000
 );
 
 CREATE TABLE portfolio (
@@ -20,10 +20,12 @@ CREATE TABLE portfolio (
 
 CREATE TABLE eventLog (
     id INTEGER,
+    totalCash DECIMAL(15,2),
     eventName TEXT CHECK(eventName IN ('Bought', 'Sold', 'Logged on', 'Logged out')) NOT NULL,
     stockSold VARCHAR(10),
     stockBought VARCHAR(10),
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id) REFERENCES user(id)
+    FOREIGN KEY (id) REFERENCES user(id),
+    FOREIGN KEY(totalCash) REFERENCES user(totalCash)
 );
 
