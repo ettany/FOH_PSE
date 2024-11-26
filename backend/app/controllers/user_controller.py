@@ -118,17 +118,29 @@ def register():
         except Exception:
             return jsonify({"error": "Registration failed. Please try again."}), 500
 
-@user_bp.route('/index', methods=['GET'])
+@user_bp.route('/index', methods=['POST'])
 def index():
     print("Session at index:", session)  # Check current session state
-    print("Check Username", session.get("username"))
-    username = session.get("username")
-    total_cash = session.get("totalCash")
+    # Get the username from the request body
+    data = request.get_json()
+    username = data.get("username")
+    print("Check Username", username)
 
     if not username:
-        return jsonify({"error": "User not logged in."}), 401
-
-    return jsonify({"username": username, "totalCash": total_cash}), 200  # Return JSON data
+        return jsonify({"error": "User not authenticated"}), 403
+    else:
+        try:
+            # Get the user's balance from the database
+            db_conn = get_db()
+            cursor = db_conn.execute("SELECT totalCash FROM user WHERE username = ?", (username,))
+            user = cursor.fetchone()
+            if user:
+                return jsonify({"totalCash": user["totalCash"]}), 200
+            else:
+                return jsonify({"error": "User not found"}), 404
+        except Exception as e:
+            print(f"Error: {e}")
+            return jsonify({"error": "User not authenticated"}), 403
 
 @user_bp.route('/admin', methods=['GET'])
 def admin():
@@ -185,27 +197,5 @@ def list_users():
     cursor = db_conn.execute("SELECT username FROM user")
     users = [{"username": row["username"]} for row in cursor.fetchall()]
     return jsonify(users), 200
-
-@user_bp.route('/balance', methods=['GET'])
-def get_user_balance():
-    try:
-        # Ensure the user is authenticated
-        user_id = session.get('user_id')
-        print("user id: ", user_id)
-        if not user_id:
-            return jsonify({"error": "User not authenticated"}), 403
-
-        # Get the user's balance from the database
-        db_conn = get_db()
-        cursor = db_conn.execute("SELECT totalCash FROM user WHERE id = ?", (user_id,))
-        user = cursor.fetchone()
-
-        if user:
-            return jsonify({"totalCash": user["totalCash"]}), 200
-        else:
-            return jsonify({"error": "User not found"}), 404
-    except Exception as e:
-        print(f"Error fetching user balance: {e}")
-        return jsonify({"error": "Failed to fetch balance"}), 500
 
 

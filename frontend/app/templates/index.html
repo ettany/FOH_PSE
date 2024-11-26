@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Portfolio</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .chart-container {
+            margin-top: 20px;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 5px;
+            background: #fff;
+            border: 1px solid #ccc;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .dot {
+            stroke: #000;
+            stroke-width: 0.5px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -58,6 +78,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="stocks-chart" class="chart-container"></div>
         </section>
     </main>
     <footer>
@@ -65,25 +86,125 @@
     </footer>
 
     <script>
-        // Retrieve data from session storage
-        const sessionDataString = sessionStorage.getItem("session");
-    
-        // Check if session data exists and is not null
-        if (sessionDataString) {
-            try {
-                const sessionData = JSON.parse(sessionDataString);
-                document.getElementById("username").textContent = sessionData.username || "Guest";
-                document.getElementById("totalCash").textContent = sessionData.totalCash || "0.00";
-            } catch (error) {
-                console.error("Failed to parse session data:", error);
-                document.getElementById("username").textContent = "Guest";
-                document.getElementById("totalCash").textContent = "0.00";
-            }
-        } else {
-            document.getElementById("username").textContent = "Guest";
-            document.getElementById("totalCash").textContent = "0.00";
-        }
+        // Sample data for the chart
+        const data = [
+            { stock: "Example stock 1", change: -0.05, profit: -5.67 },
+            { stock: "Example stock 2", change: 1.35, profit: 5.20 }
+        ];
+
+        const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+        const width = 600 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        const svg = d3.select('#stocks-chart')
+            .append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Compute padding
+        const xPadding = (d3.max(data, d => d.change) - d3.min(data, d => d.change)) * 0.1;
+        const yPadding = (d3.max(data, d => d.profit) - d3.min(data, d => d.profit)) * 0.1;
+
+        // Define scales with padding
+        const x = d3.scaleLinear()
+            .domain([
+                Math.min(0, d3.min(data, d => d.change) - xPadding),
+                d3.max(data, d => d.change) + xPadding
+            ])
+            .range([0, width]);
+
+        const y = d3.scaleLinear()
+            .domain([
+                d3.min(data, d => d.profit) - yPadding,
+                d3.max(data, d => d.profit) + yPadding
+            ])
+            .range([height, 0]);
+
+        // Draw x-axis
+        svg.append('g')
+            .attr('transform', `translate(0,${y(0)})`)
+            .call(d3.axisBottom(x).tickFormat(d => d + "%"));
+
+        // Draw y-axis
+        svg.append('g')
+            .attr('transform', `translate(${x(0)},0)`)
+            .call(d3.axisLeft(y).tickFormat(d => "$" + d));
+
+        // Draw grid lines
+        svg.append('g')
+            .selectAll('line.horizontal')
+            .data(y.ticks())
+            .enter().append('line')
+            .attr('x1', 0)
+            .attr('x2', width)
+            .attr('y1', d => y(d))
+            .attr('y2', d => y(d))
+            .attr('stroke', '#ccc')
+            .attr('stroke-dasharray', '3,3');
+
+        svg.append('g')
+            .selectAll('line.vertical')
+            .data(x.ticks())
+            .enter().append('line')
+            .attr('y1', 0)
+            .attr('y2', height)
+            .attr('x1', d => x(d))
+            .attr('x2', d => x(d))
+            .attr('stroke', '#ccc')
+            .attr('stroke-dasharray', '3,3');
+
+        // Plot the points
+        svg.selectAll('.dot')
+            .data(data)
+            .enter().append('circle')
+            .attr('class', 'dot')
+            .attr('cx', d => x(d.change))
+            .attr('cy', d => y(d.profit))
+            .attr('r', 6)
+            .attr('fill', d => d.profit >= 0 ? 'steelblue' : 'red');
+
+        // Add tooltip functionality
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip");
+
+        svg.selectAll('.dot')
+            .on('mouseover', function(event, d) {
+                tooltip.style("opacity", 0.9)
+                    .html(`Stock: ${d.stock}<br>Change: ${d.change}%<br>Profit: $${d.profit}`)
+                    .style("left", `${event.pageX + 5}px`)
+                    .style("top", `${event.pageY - 28}px`);
+            })
+            .on('mouseout', function() {
+                tooltip.style("opacity", 0);
+            });
+        //Retrieve the data from the database
+        async function fetchUserData() {
+    // Retrieve data from session storage
+    const sessionDataString = sessionStorage.getItem("session");
+
+    // Check if session data exists and is not null
+    if (sessionDataString) {
+        const sessionData = JSON.parse(sessionDataString);
+        const username = sessionData.username || "Guest";
+
+        const response = await fetch("http://127.0.0.1:5000/api/user/index", {
+            method: "POST",  // Use POST instead of GET
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username })  // Send username in the request body
+        });
+
+        const result = await response.json();
+        const totalCash = result.totalCash;
+        document.getElementById("username").textContent = username || "Guest";
+        document.getElementById("totalCash").textContent = totalCash || "0.00";
+    }
+}
+    // Call fetchUserData on page load
+    document.addEventListener('DOMContentLoaded', fetchUserData);
     </script>
-    
 </body>
 </html>
