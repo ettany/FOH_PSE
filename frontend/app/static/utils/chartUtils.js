@@ -101,8 +101,8 @@ export function drawLineChart(data) {
     console.log('Line chart drawn successfully');
 }
 
-// Function to update the D3 chart with new data
-export function updateChart(data) {
+// Function to draw scatter plot the D3 chart with new data
+export function drawScatterPlotChart(data) {
     const margin = { top: 20, right: 30, bottom: 40, left: 60 };
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
