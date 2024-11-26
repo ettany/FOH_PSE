@@ -92,6 +92,43 @@ def sell():
     else:
         return jsonify({"error": "Not enough shares to sell"}), 400
 
+
+@transaction_bp.route('/portfolio', methods=['GET'])
+def get_portfolio():
+    username = session.get('username')
+    if not username:
+        return jsonify({"error": "User not logged in"}), 401
+
+    db_conn = get_db()
+    user_id = db_conn.execute(
+        "SELECT id FROM user WHERE username = ?", (username,)).fetchone()
+
+    if not user_id:
+        return jsonify({"error": "User not found"}), 404
+
+    portfolio = db_conn.execute(
+        "SELECT ticker, numShares FROM portfolio WHERE id = ?", (user_id['id'],)).fetchall()
+
+    response_data = []
+    for stock in portfolio:
+        ticker = stock['ticker']
+        numShares = stock['numShares']
+        stock_info = yf.Ticker(ticker).info
+        current_price = stock_info.get("currentPrice", 0)
+        previous_close = stock_info.get("regularMarketPreviousClose", 0)
+
+        price_change = current_price - previous_close
+        price_change_percent = (price_change / previous_close) * 100 if previous_close else 0
+
+        response_data.append({
+            "ticker": ticker,
+            "numShares": numShares,
+            "currentPrice": current_price,
+            "price_change": price_change,
+            "price_change_percent": price_change_percent
+        })
+
+    return jsonify(response_data), 200
 @transaction_bp.route('/schedule_buy', methods=['POST'])
 def schedule_buy():
     data = request.get_json()

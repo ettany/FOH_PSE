@@ -65,20 +65,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Example stock 1</td>
-                            <td>-0.05%</td>
-                            <td>-$5.67</td>
-                        </tr>
-                        <tr>
-                            <td>Example stock 2</td>
-                            <td>+1.35%</td>
-                            <td>+$5.20</td>
-                        </tr>
+                        <!-- Dynamic table rows go here -->
                     </tbody>
                 </table>
             </div>
-            <div id="stocks-chart" class="chart-container"></div>
+            <div id="stocks-chart" class="chart-container">
+                <svg width="600" height="400">
+                    <g transform="translate(60,20)">
+                        <g class="x-axis"></g>
+                        <g class="y-axis"></g>
+                    </g>
+                </svg>
+            </div>
         </section>
     </main>
     <footer>
@@ -86,125 +84,142 @@
     </footer>
 
     <script>
-        // Sample data for the chart
-        const data = [
-            { stock: "Example stock 1", change: -0.05, profit: -5.67 },
-            { stock: "Example stock 2", change: 1.35, profit: 5.20 }
-        ];
-
-        const margin = { top: 20, right: 30, bottom: 40, left: 60 };
-        const width = 600 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
-
-        const svg = d3.select('#stocks-chart')
-            .append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            .append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
-
-        // Compute padding
-        const xPadding = (d3.max(data, d => d.change) - d3.min(data, d => d.change)) * 0.1;
-        const yPadding = (d3.max(data, d => d.profit) - d3.min(data, d => d.profit)) * 0.1;
-
-        // Define scales with padding
-        const x = d3.scaleLinear()
-            .domain([
-                Math.min(0, d3.min(data, d => d.change) - xPadding),
-                d3.max(data, d => d.change) + xPadding
-            ])
-            .range([0, width]);
-
-        const y = d3.scaleLinear()
-            .domain([
-                d3.min(data, d => d.profit) - yPadding,
-                d3.max(data, d => d.profit) + yPadding
-            ])
-            .range([height, 0]);
-
-        // Draw x-axis
-        svg.append('g')
-            .attr('transform', `translate(0,${y(0)})`)
-            .call(d3.axisBottom(x).tickFormat(d => d + "%"));
-
-        // Draw y-axis
-        svg.append('g')
-            .attr('transform', `translate(${x(0)},0)`)
-            .call(d3.axisLeft(y).tickFormat(d => "$" + d));
-
-        // Draw grid lines
-        svg.append('g')
-            .selectAll('line.horizontal')
-            .data(y.ticks())
-            .enter().append('line')
-            .attr('x1', 0)
-            .attr('x2', width)
-            .attr('y1', d => y(d))
-            .attr('y2', d => y(d))
-            .attr('stroke', '#ccc')
-            .attr('stroke-dasharray', '3,3');
-
-        svg.append('g')
-            .selectAll('line.vertical')
-            .data(x.ticks())
-            .enter().append('line')
-            .attr('y1', 0)
-            .attr('y2', height)
-            .attr('x1', d => x(d))
-            .attr('x2', d => x(d))
-            .attr('stroke', '#ccc')
-            .attr('stroke-dasharray', '3,3');
-
-        // Plot the points
-        svg.selectAll('.dot')
-            .data(data)
-            .enter().append('circle')
-            .attr('class', 'dot')
-            .attr('cx', d => x(d.change))
-            .attr('cy', d => y(d.profit))
-            .attr('r', 6)
-            .attr('fill', d => d.profit >= 0 ? 'steelblue' : 'red');
-
-        // Add tooltip functionality
-        const tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip");
-
-        svg.selectAll('.dot')
-            .on('mouseover', function(event, d) {
-                tooltip.style("opacity", 0.9)
-                    .html(`Stock: ${d.stock}<br>Change: ${d.change}%<br>Profit: $${d.profit}`)
-                    .style("left", `${event.pageX + 5}px`)
-                    .style("top", `${event.pageY - 28}px`);
-            })
-            .on('mouseout', function() {
-                tooltip.style("opacity", 0);
-            });
-        //Retrieve the data from the database
+        // Fetch user data and update portfolio
         async function fetchUserData() {
-    // Retrieve data from session storage
-    const sessionDataString = sessionStorage.getItem("session");
+            const sessionDataString = sessionStorage.getItem("session");
 
-    // Check if session data exists and is not null
-    if (sessionDataString) {
-        const sessionData = JSON.parse(sessionDataString);
-        const username = sessionData.username || "Guest";
+            if (sessionDataString) {
+                const sessionData = JSON.parse(sessionDataString);
+                const username = sessionData.username || "Guest";
 
-        const response = await fetch("http://127.0.0.1:5000/api/user/index", {
-            method: "POST",  // Use POST instead of GET
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username })  // Send username in the request body
+                const response = await fetch("http://127.0.0.1:5000/api/user/index", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username })
+                });
+
+                const result = await response.json();
+                const totalCash = result.totalCash;
+                document.getElementById("username").textContent = username || "Guest";
+                document.getElementById("totalCash").textContent = totalCash || "0.00";
+            }
+        }
+
+        // Fetch and update portfolio table and chart
+        async function fetchPortfolio() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/api/transaction/portfolio", {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                if (!response.ok) throw new Error("Error fetching portfolio data");
+
+                const data = await response.json();
+
+                // Update table
+                const stocksTableBody = document.querySelector("#stocks_owned tbody");
+                stocksTableBody.innerHTML = ""; // Clear existing rows
+
+                const formattedData = data.map(stock => {
+                    const row = document.createElement("tr");
+
+                    // Create table cells
+                    const stockCell = document.createElement("td");
+                    stockCell.textContent = `${stock.ticker} (${stock.numShares} shares)`;
+
+                    const changeCell = document.createElement("td");
+                    changeCell.textContent = `${stock.price_change_percent.toFixed(2)}%`;
+                    changeCell.style.color = stock.price_change_percent >= 0 ? "green" : "red";
+
+                    const profitCell = document.createElement("td");
+                    profitCell.textContent = `$${stock.price_change.toFixed(2)}`;
+                    profitCell.style.color = stock.price_change >= 0 ? "green" : "red";
+
+                    // Append cells to the row
+                    row.appendChild(stockCell);
+                    row.appendChild(changeCell);
+                    row.appendChild(profitCell);
+
+                    // Append the row to the table body
+                    stocksTableBody.appendChild(row);
+
+                    // Format data for the chart
+                    return {
+                        stock: stock.ticker,
+                        change: stock.price_change_percent,
+                        profit: stock.price_change,
+                    };
+                });
+
+                // Update the D3 chart
+                updateChart(formattedData);
+            } catch (error) {
+                console.error("Error fetching portfolio:", error);
+                alert("Failed to load portfolio. Please try again.");
+            }
+        }
+
+        // Update the chart with new data
+        function updateChart(data) {
+            const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+            const width = 600 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+
+            const svg = d3.select('#stocks-chart svg g');
+
+            // Update scales
+            const xPadding = (d3.max(data, d => d.change) - d3.min(data, d => d.change)) * 0.1;
+            const yPadding = (d3.max(data, d => d.profit) - d3.min(data, d => d.profit)) * 0.1;
+
+            const x = d3.scaleLinear()
+                .domain([
+                    Math.min(0, d3.min(data, d => d.change) - xPadding),
+                    d3.max(data, d => d.change) + xPadding
+                ])
+                .range([0, width]);
+
+            const y = d3.scaleLinear()
+                .domain([
+                    d3.min(data, d => d.profit) - yPadding,
+                    d3.max(data, d => d.profit) + yPadding
+                ])
+                .range([height, 0]);
+
+            // Update axes
+            svg.select('.x-axis')
+                .attr('transform', `translate(0,${y(0)})`)
+                .transition().duration(750)
+                .call(d3.axisBottom(x).tickFormat(d => d + "%"));
+
+            svg.select('.y-axis')
+                .transition().duration(750)
+                .call(d3.axisLeft(y).tickFormat(d => "$" + d));
+
+            // Bind data and update dots
+            const dots = svg.selectAll('.dot').data(data);
+
+            // Enter
+            dots.enter()
+                .append('circle')
+                .attr('class', 'dot')
+                .attr('r', 6)
+                .merge(dots)
+                .transition().duration(750)
+                .attr('cx', d => x(d.change))
+                .attr('cy', d => y(d.profit))
+                .attr('fill', d => d.profit >= 0 ? 'steelblue' : 'red');
+
+            // Exit
+            dots.exit().remove();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchUserData();
+            fetchPortfolio();
+            setInterval(fetchPortfolio, 3000);
         });
-
-        const result = await response.json();
-        const totalCash = result.totalCash;
-        document.getElementById("username").textContent = username || "Guest";
-        document.getElementById("totalCash").textContent = totalCash || "0.00";
-    }
-}
-    // Call fetchUserData on page load
-    document.addEventListener('DOMContentLoaded', fetchUserData);
     </script>
 </body>
 </html>
