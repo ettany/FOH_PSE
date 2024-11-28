@@ -1,16 +1,32 @@
-from flask import Blueprint, request, jsonify, flash, session, make_response
-from werkzeug.security import generate_password_hash, check_password_hash
+import requests
+from flask import Blueprint, request, jsonify, session
+from werkzeug.security import check_password_hash, generate_password_hash
 from ..db import get_db
 import datetime
+import os
 
 user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/login', methods=['POST'])
 def login():
-
-    data = request.get_json()  # Get JSON data from the request
+    data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    captcha_response = data.get('captcha_response')  # Get CAPTCHA response from the front-end
+    
+    # Verify CAPTCHA response with Google
+    secret_key = os.getenv('RECAPTCHA_SECRET_KEY')  # Replace with your actual secret key
+    print('Secret Key: ', secret_key)
+    captcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
+    captcha_result = requests.post(captcha_verify_url, data={
+        'secret': secret_key,
+        'response': captcha_response
+    })
+    result = captcha_result.json()
+
+    # If CAPTCHA verification fails, return an error
+    if not result.get('success'):
+        return jsonify({"error": "CAPTCHA verification failed."}), 400
 
     # Check the credentials against the database
     try:
@@ -28,18 +44,16 @@ def login():
             session.permanent = True  # Make session permanent if desired
             try:
                 db_conn.execute(
-                "INSERT INTO eventLog (id, eventName, stockSold, stockBought, date) VALUES (?, ?, NULL, NULL, ?)",
-                (user["id"], "Logged on", timestamp)
+                    "INSERT INTO eventLog (id, eventName, stockSold, stockBought, date) VALUES (?, ?, NULL, NULL, ?)",
+                    (user["id"], "Logged on", timestamp)
                 )
                 db_conn.commit()
-
             except Exception:
                 print("Error adding login to eventLog")
                 return jsonify({"error": "Error adding login to eventLog. Please try again."}), 500
             
             print("Session set: ", session)
             if username == "administration":
-
                 return jsonify({"message": "Admin login successful!", "user": username}), 200
             else:
                 return jsonify({"message": "User login successful!", "user": username, "totalCash": user["totalCash"], "user_id": user["id"]}), 200
