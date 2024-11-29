@@ -24,4 +24,3 @@ def get_log_entries():
     except Exception as e:
         print(f"Error fetching log entries: {e}")
         return jsonify({"error": "Failed to fetch log entries"}), 500
-

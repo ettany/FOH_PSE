@@ -2,6 +2,7 @@ from flask import Flask, render_template, session
 from dotenv import load_dotenv  # Import load_dotenvtoc
 def create_app():
     app = Flask(__name__)
+    
 
     # Load environment variables from .env file
     load_dotenv()

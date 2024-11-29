@@ -81,15 +81,20 @@
                 Object.entries(stocks).forEach(([ticker, data]) => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${ticker}</td>
-                        <td>${data.name}</td>
-                        <td>$${data.price}</td>
-                        <td><input type="number" class="quantity-input" placeholder="Quantity" min="1" /></td>
-                        <td>
-                            <button class="buy-button" data-symbol="${ticker}" data-price="${data.price}">Buy</button>
-                            <button class="sell-button" data-symbol="${ticker}" data-price="${data.price}">Sell</button>
-                        </td>
-                    `;
+    <td>${ticker}</td>
+    <td>${data.name}</td>
+    <td>$${data.price}</td>
+    <td><input type="number" class="quantity-input" placeholder="Quantity" min="1" /></td>
+    <td>
+        <button class="buy-button" data-symbol="${ticker}" data-price="${data.price}">Buy</button>
+        <button class="sell-button" data-symbol="${ticker}" data-price="${data.price}">Sell</button>
+        <div class="schedule-buttons">
+            <input type="datetime-local" class="schedule-datetime" placeholder="Schedule Time" />
+            <button class="schedule-buy-button" data-symbol="${ticker}" data-price="${data.price}">Schedule Buy</button>
+            <button class="schedule-sell-button" data-symbol="${ticker}" data-price="${data.price}">Schedule Sell</button>
+        </div>
+    </td>
+`;
                     tableBody.appendChild(row);
                     stockPrices.push({ symbol: ticker, price: data.price });
                 });
@@ -128,15 +133,20 @@
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${result.stock.ticker}</td>
-                    <td>${result.stock.name}</td>
-                    <td>$${result.stock.price}</td>
-                    <td><input type="number" class="quantity-input" placeholder="Quantity" min="1" /></td>
-                    <td>
-                        <button class="buy-button" data-symbol="${result.stock.ticker}" data-price="${result.stock.price}">Buy</button>
-                        <button class="sell-button" data-symbol="${result.stock.ticker}" data-price="${result.stock.price}">Sell</button>
-                    </td>
-                `;
+    <td>${result.stock.ticker}</td>
+    <td>${result.stock.name}</td>
+    <td>$${result.stock.price}</td>
+    <td><input type="number" class="quantity-input" placeholder="Quantity" min="1" /></td>
+    <td>
+        <button class="buy-button" data-symbol="${result.stock.ticker}" data-price="${result.stock.price}">Buy</button>
+        <button class="sell-button" data-symbol="${result.stock.ticker}" data-price="${result.stock.price}">Sell</button>
+        <div class="schedule-buttons">
+            <input type="datetime-local" class="schedule-datetime" placeholder="Schedule Time" />
+            <button class="schedule-buy-button" data-symbol="${result.stock.ticker}" data-price="${result.stock.price}">Schedule Buy</button>
+            <button class="schedule-sell-button" data-symbol="${result.stock.ticker}" data-price="${result.stock.price}">Schedule Sell</button>
+        </div>
+    </td>
+`;
                 resultTableBody.appendChild(row);
 
                 // Prepare data for the chart
@@ -184,6 +194,33 @@
                 alert(error.message);
             }
         }
+        async function handleScheduledTransaction(action, symbol, quantity, datetime) {
+    const sessionDataString = sessionStorage.getItem("session");
+    const sessionData = JSON.parse(sessionDataString);
+    const userSession = sessionData.username || "Guest";
+
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/api/transaction/${action}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ticker: symbol,
+                numShares: quantity,
+                username: userSession,
+                scheduleTime: datetime
+            }),
+        });
+
+        if (!response.ok) throw new Error('Scheduling transaction failed');
+
+        const result = await response.json();
+        alert(`Scheduled transaction successful: ${action} ${quantity} of ${symbol} at ${datetime}`);
+    } catch (error) {
+        alert(error.message);
+    }
+}
 
         document.addEventListener('click', (event) => {
             if (event.target.classList.contains('buy-button')) {
@@ -209,7 +246,30 @@
                     alert('Please enter a quantity.');
                 }
             }
-        });
+            if (event.target.classList.contains('schedule-buy-button')) {
+        const symbol = event.target.getAttribute('data-symbol');
+        const quantity = event.target.closest('tr').querySelector('.quantity-input').value;
+        const datetime = event.target.closest('tr').querySelector('.schedule-datetime').value;
+
+        if (quantity && datetime) {
+            handleScheduledTransaction('schedule_buy', symbol, quantity, datetime);
+        } else {
+            alert('Please enter both a quantity and a schedule time.');
+        }
+    }
+
+    if (event.target.classList.contains('schedule-sell-button')) {
+        const symbol = event.target.getAttribute('data-symbol');
+        const quantity = event.target.closest('tr').querySelector('.quantity-input').value;
+        const datetime = event.target.closest('tr').querySelector('.schedule-datetime').value;
+
+        if (quantity && datetime) {
+            handleScheduledTransaction('schedule_sell', symbol, quantity, datetime);
+        } else {
+            alert('Please enter both a quantity and a schedule time.');
+        }
+    }
+});
 
         document.getElementById('search-button').addEventListener('click', searchStock);
         window.onload = fetchStockDataAndDrawChart;
