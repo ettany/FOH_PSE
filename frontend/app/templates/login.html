@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>Login</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <header>
@@ -17,14 +18,14 @@
     </header>
     <div class="lform">
         <h2>Login</h2>
-        <form id="loginForm" onsubmit="onClick(event)">
+        <form id="loginForm">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required><br><br>
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required><br><br>
 
-            <!-- Add reCAPTCHA widget -->
-            <div class="g-recaptcha" data-sitekey="6LdVRYwqAAAAACpmbm5KTyMp-dzj9xmUya6BgRhy" data-action="LOGIN"></div>
+            <!-- reCAPTCHA widget -->
+            <div class="g-recaptcha" data-sitekey="6LdtC40qAAAAAER3z6dULo3ggS80xz5wAlQV-rfF"></div><br><br>
 
             <p id="message" class="flash"></p>
             <input type="submit" value="Login" class="button">
@@ -35,49 +36,55 @@
         <p>&copy; 2024 Fox Of Hood</p>
     </footer>
 
-    <script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
     <script>
-        function onClick(e) {
-            e.preventDefault();  // Prevent form submission
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
+            event.preventDefault();  // Prevent form from reloading the page
 
-            grecaptcha.enterprise.ready(async () => {
-                try {
-                    const token = await grecaptcha.enterprise.execute('6LdVRYwqAAAAACpmbm5KTyMp-dzj9xmUya6BgRhy', {action: 'LOGIN'});
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const recaptchaResponse = grecaptcha.getResponse();  // Get reCAPTCHA response
 
-                    // Now send the token to your server (using fetch or another method)
-                    const response = await fetch('/api/user/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            username: document.getElementById("username").value,
-                            password: document.getElementById("password").value,
-                            captcha_response: token  // Include the token in the request
-                        })
-                    });
+            if (!recaptchaResponse) {
+                document.getElementById("message").textContent = "Please complete the reCAPTCHA.";
+                document.getElementById("message").style.color = "red";
+                return;
+            }
 
-                    const data = await response.json();
-                    const messageElement = document.getElementById("message");
-                    if (response.ok) {
-                        messageElement.textContent = data.message;
-                        messageElement.style.color = "green";
-                        // Redirect based on role
-                        if (data.user === "administration") {
-                            window.location.href = "{{ url_for('admin') }}";  // Redirect to admin page
-                        } else {
-                            window.location.href = "{{ url_for('index') }}";  // Redirect to user dashboard
-                        }
+            try {
+                const response = await fetch("http://127.0.0.1:5000/api/user/login", {
+                    method: "POST",
+                    credentials: 'include', // ensures the cookies are sent for session maintenance
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ username, password, recaptcha_response: recaptchaResponse })
+                });
+
+                const data = await response.json();
+                const messageElement = document.getElementById("message");
+                if (response.ok) {
+                    // Store the user data in session storage as a JSON object
+                    sessionStorage.setItem("session", JSON.stringify({
+                        username: username,
+                        // totalCash: data.totalCash
+                    }));
+                    messageElement.textContent = data.message;
+                    messageElement.style.color = "green";
+                    // Redirect based on the role
+                    if (username === "administration") {
+                        window.location.href = "{{ url_for('admin') }}";  // Redirect to admin page
                     } else {
-                        messageElement.textContent = data.error;
-                        messageElement.style.color = "red";
+                        window.location.href = "{{ url_for('index') }}";  // Redirect to user dashboard
                     }
-                } catch (error) {
-                    console.error('Error during reCAPTCHA execution:', error);
-                    document.getElementById("message").textContent = "An error occurred. Please try again.";
+                } else {
+                    messageElement.textContent = data.error;
+                    messageElement.style.color = "red";
                 }
-            });
-        }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("message").textContent = "An error occurred. Please try again.";
+            }
+        });
     </script>
 </body>
 </html>
