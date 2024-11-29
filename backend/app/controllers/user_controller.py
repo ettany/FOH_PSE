@@ -4,7 +4,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from ..db import get_db
 import datetime
 import os
+import base64
+from .face_verification import verify_face
+import sqlite3
 
+DATABASE = "database.db"
 user_bp = Blueprint('user', __name__)
 RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 @user_bp.route('/login', methods=['POST'])
@@ -103,12 +107,14 @@ def logout():
 @user_bp.route('/register', methods=['POST'])
 def register():
     if request.method == "POST":
-        data = request.get_json()  # Get JSON data from the request
+        data = request.get_json()
         username = data.get('username')
         password = data.get('password')
+        photo_data = data.get('photoData')
+
         if not username or not password:
             return jsonify({"error": "Username and password are required."}), 400
-        # Check if the username already exists
+
         db_conn = get_db()
         existing_user = db_conn.execute(
             "SELECT * FROM user WHERE username = ?",
@@ -117,18 +123,30 @@ def register():
         if existing_user:
             return jsonify({"error": "Username already taken"}), 400
 
-        # Hash the password
         hashed_password = generate_password_hash(password)
 
         try:
-            # Insert user into the database
+            if photo_data:
+                photo_data = photo_data.split(",")[1]
+                photo_bytes = base64.b64decode(photo_data)
+                photo_filename = f"{username}.jpg"
+                photo_path = os.path.join("uploads", photo_filename)
+
+                os.makedirs("uploads", exist_ok=True)
+
+                with open(photo_path, "wb") as f:
+                    f.write(photo_bytes)
+
             db_conn.execute(
-                "INSERT INTO user (username, password, totalCash) VALUES (?, ?, ?)",
-                (username, hashed_password, 100000)
+                "INSERT INTO user (username, password, totalCash, photo) VALUES (?, ?, ?, ?)",
+                (username, hashed_password, 100000,
+                 photo_path if photo_data else None)
             )
             db_conn.commit()
             return jsonify({"message": "User registered successfully!"}), 201
-        except Exception:
+
+        except Exception as e:
+            print(f"Error: {e}")
             return jsonify({"error": "Registration failed. Please try again."}), 500
 
 @user_bp.route('/index', methods=['POST'])
@@ -212,3 +230,72 @@ def list_users():
     return jsonify(users), 200
 
 
+@user_bp.route('/face_recognition_login', methods=['POST'])
+def face_recognition_login():
+    data = request.get_json()
+    username = data.get('username')
+    photo_data = data.get('photoData')
+    password = data.get('password')
+
+    if not username or not photo_data:
+        return jsonify({"error": "Username and photo data are required."}), 400
+
+    try:
+        db_conn = get_db()
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        user = db_conn.execute(
+            "SELECT * FROM user WHERE username = ?",
+            (username,)
+        ).fetchone()
+
+        if not user:
+            return jsonify({"error": "User not found."}), 404
+
+        user_photo_path = user['photo']
+        if not user_photo_path or not os.path.exists(user_photo_path):
+            return jsonify({"error": "No photo found for this user."}), 404
+
+        try:
+            photo_data_decoded = base64.b64decode(photo_data.split(",")[1])
+            with open("temp_user_photo.jpg", "wb") as temp_file:
+                temp_file.write(photo_data_decoded)
+
+            match = verify_face(user_photo_path, "temp_user_photo.jpg")
+
+            if match:
+                session["username"] = username
+                session["totalCash"] = user["totalCash"]
+                session["user_id"] = user["id"]
+                session.permanent = True  
+            
+                try:
+                    db_conn.execute(
+                        "INSERT INTO eventLog (id, eventName, stockSold, stockBought, date) VALUES (?, ?, NULL, NULL, ?)",
+                        (user["id"], "Logged on", timestamp)
+                    )
+                    db_conn.commit()
+                    
+                except Exception:
+                    print("Error adding login to eventLog")
+                    return jsonify({"error": "Error adding login to eventLog. Please try again."}), 500
+
+                print("Session set: ", session)
+                if username == "administration":
+
+                    return jsonify({"message": "Admin login successful!", "success": True,"user": username}), 200
+                
+                else:
+                    #return jsonify({"success": True, "message": "Face recognition successful!"}), 200   
+                    return jsonify({"user": username, "totalCash": user["totalCash"], "user_id": user["id"],"message": "Face recognition successful", "success": True}), 200
+             
+                
+            else:
+                return jsonify({"error": "Face recognition failed. Try again."}), 401
+
+        except Exception as e:
+            print(f"Error during face recognition: {e}")
+            return jsonify({"error": "Error processing photo data."}), 500
+
+    except Exception as e:
+        print(f"Database error: {e}")
+        return jsonify({"error": "An error occurred while fetching user data."}), 500

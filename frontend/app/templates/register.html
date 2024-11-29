@@ -31,39 +31,85 @@
         <p>&copy; 2024 Fox Of Hood</p>
     </footer>
 
+    <div id="overlay"></div>
+    <div id="webcamPopup">
+        <video id="webcam" autoplay></video>
+        <button id="takePhotoButton">Take Photo</button>
+        <button id="closeWebcam">Close</button>
+    </div>
+
     <script>
-        document.getElementById("registerForm").addEventListener("submit", async function(event) {
-            event.preventDefault();  // Prevent form from reloading the page
+        const registerForm = document.getElementById("registerForm");
+        const webcamPopup = document.getElementById("webcamPopup");
+        const overlay = document.getElementById("overlay");
+        const takePhotoButton = document.getElementById("takePhotoButton");
+        const closeWebcamButton = document.getElementById("closeWebcam");
+        const video = document.getElementById("webcam");
 
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
+        registerForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            openFaceRecognitionPopup();
+        });
 
-            try {
-                const response = await fetch("http://127.0.0.1:5000/api/user/register", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ username, password })
+        function openFaceRecognitionPopup() {
+            overlay.style.display = "block";
+            webcamPopup.style.display = "block";
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+                })
+                .catch((error) => {
+                    console.error("Error accessing webcam:", error);
+                    alert("Could not access webcam. Please try again.");
+                    closeFaceRecognitionPopup();
                 });
+        }
 
-                const data = await response.json();
-                const messageElement = document.getElementById("message");
-
-                if (response.ok) {
-                    messageElement.textContent = data.message;
-                    messageElement.style.color = "green";
-                    // Optionally redirect after successful registration
+        takePhotoButton.addEventListener("click", () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext("2d");
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const photoData = canvas.toDataURL("image/jpeg");
+            fetch("http://127.0.0.1:5000/api/user/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    username: document.getElementById("username").value,
+                    password: document.getElementById("password").value,
+                    photoData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message); 
+                    closeFaceRecognitionPopup();
                     window.location.href = "{{ url_for('login') }}";
                 } else {
-                    messageElement.textContent = data.error;
-                    messageElement.style.color = "red";
+                    alert(data.error || "Error saving photo."); 
                 }
-            } catch (error) {
+            })
+            .catch((error) => {
                 console.error("Error:", error);
-                document.getElementById("message").textContent = "An error occurred. Please try again.";
-            }
+                alert("An unexpected error occurred.");
+            });
+
         });
+
+        function closeFaceRecognitionPopup() {
+            overlay.style.display = "none";
+            webcamPopup.style.display = "none";
+            const stream = video.srcObject;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            video.srcObject = null;
+        }
+
+        closeWebcamButton.addEventListener("click", closeFaceRecognitionPopup);
     </script>
 </body>
 </html>
