@@ -27,19 +27,7 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="topnav">
-            <div class="pages">
-                <a class="active" href="{{ url_for('index') }}">Portfolio</a>
-                <a href="{{ url_for('trade') }}">Trade</a>
-                <a href="{{ url_for('log') }}">Log</a>
-                <a href="{{ url_for('visualization') }}">Visualization</a>
-            </div>
-            <div class="logout">
-                <a href="{{ url_for('logout') }}">Logout</a>
-            </div>
-        </div>
-    </header>
+    {% include 'header.html' %}
     <main>
         <div id="portfolio">
             <h1>Welcome, <span id="username"></span>!</h1>
@@ -65,7 +53,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Dynamic table rows go here -->
+                        
                     </tbody>
                 </table>
             </div>
@@ -83,7 +71,9 @@
         <p>&copy; 2024 Fox Of Hood</p>
     </footer>
 
-    <script>
+    <script type="module">
+        import { drawScatterPlotChart } from "{{ url_for('static', filename='utils/chartUtils.js') }}";
+
         // Fetch user data and update portfolio
         async function fetchUserData() {
             const sessionDataString = sessionStorage.getItem("session");
@@ -105,7 +95,7 @@
             }
         }
 
-        // Fetch and update portfolio table and chart
+
         async function fetchPortfolio() {
             try {
                 const response = await fetch("http://127.0.0.1:5000/api/transaction/portfolio", {
@@ -117,11 +107,9 @@
 
                 const data = await response.json();
 
-                // Update table
                 const stocksTableBody = document.querySelector("#stocks_owned tbody");
                 stocksTableBody.innerHTML = ""; // Clear existing rows
-
-                const formattedData = data.map(stock => {
+                const scatterPlotData = data.map(stock => {
                     const row = document.createElement("tr");
 
                     // Create table cells
@@ -129,12 +117,28 @@
                     stockCell.textContent = `${stock.ticker} (${stock.numShares} shares)`;
 
                     const changeCell = document.createElement("td");
-                    changeCell.textContent = `${stock.price_change_percent.toFixed(2)}%`;
-                    changeCell.style.color = stock.price_change_percent >= 0 ? "green" : "red";
+                    const currentPrice = stock.currentPrice;
+                    const purchasePrice = stock.purchasePrice;
+
+                    let price_change_percent = 0;
+                    let price_change = 0;
+
+                    if (purchasePrice > 0) {
+                        price_change = currentPrice - purchasePrice;
+                        price_change_percent = (price_change / purchasePrice) * 100;
+                    }
+
+                    if (currentPrice === purchasePrice) {
+                        price_change = 0;
+                        price_change_percent = 0;
+                    }
+
+                    changeCell.textContent = `${price_change_percent.toFixed(2)}%`;
+                    changeCell.style.color = price_change_percent >= 0 ? "green" : "red";
 
                     const profitCell = document.createElement("td");
-                    profitCell.textContent = `$${stock.price_change.toFixed(2)}`;
-                    profitCell.style.color = stock.price_change >= 0 ? "green" : "red";
+                    profitCell.textContent = `$${price_change.toFixed(2)}`;
+                    profitCell.style.color = price_change >= 0 ? "green" : "red";
 
                     // Append cells to the row
                     row.appendChild(stockCell);
@@ -143,77 +147,47 @@
 
                     // Append the row to the table body
                     stocksTableBody.appendChild(row);
-
-                    // Format data for the chart
                     return {
                         stock: stock.ticker,
-                        change: stock.price_change_percent,
-                        profit: stock.price_change,
+                        change: price_change_percent,
+                        profit: price_change,
                     };
                 });
+                console.log(scatterPlotData);
+                drawScatterPlotChart(scatterPlotData);
 
-                // Update the D3 chart
-                updateChart(formattedData);
             } catch (error) {
                 console.error("Error fetching portfolio:", error);
                 alert("Failed to load portfolio. Please try again.");
             }
         }
 
-        // Update the chart with new data
-        function updateChart(data) {
-            const margin = { top: 20, right: 30, bottom: 40, left: 60 };
-            const width = 600 - margin.left - margin.right;
-            const height = 400 - margin.top - margin.bottom;
 
-            const svg = d3.select('#stocks-chart svg g');
+        async function logout(event) {
+                event.preventDefault();
+                const redirectUrl = event.target.getAttribute('data-url');
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/api/user/logout', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
 
-            // Update scales
-            const xPadding = (d3.max(data, d => d.change) - d3.min(data, d => d.change)) * 0.1;
-            const yPadding = (d3.max(data, d => d.profit) - d3.min(data, d => d.profit)) * 0.1;
-
-            const x = d3.scaleLinear()
-                .domain([
-                    Math.min(0, d3.min(data, d => d.change) - xPadding),
-                    d3.max(data, d => d.change) + xPadding
-                ])
-                .range([0, width]);
-
-            const y = d3.scaleLinear()
-                .domain([
-                    d3.min(data, d => d.profit) - yPadding,
-                    d3.max(data, d => d.profit) + yPadding
-                ])
-                .range([height, 0]);
-
-            // Update axes
-            svg.select('.x-axis')
-                .attr('transform', `translate(0,${y(0)})`)
-                .transition().duration(750)
-                .call(d3.axisBottom(x).tickFormat(d => d + "%"));
-
-            svg.select('.y-axis')
-                .transition().duration(750)
-                .call(d3.axisLeft(y).tickFormat(d => "$" + d));
-
-            // Bind data and update dots
-            const dots = svg.selectAll('.dot').data(data);
-
-            // Enter
-            dots.enter()
-                .append('circle')
-                .attr('class', 'dot')
-                .attr('r', 6)
-                .merge(dots)
-                .transition().duration(750)
-                .attr('cx', d => x(d.change))
-                .attr('cy', d => y(d.profit))
-                .attr('fill', d => d.profit >= 0 ? 'steelblue' : 'red');
-
-            // Exit
-            dots.exit().remove();
-        }
-
+                    if (response.ok) {
+                        const result = await response.json();
+                        alert(result.message); // Show success message
+                        window.location.href = "{{ url_for('logout') }}"; // Redirect to the homepage or login page
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.error}`); // Show error message
+                    }
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                    alert('An unexpected error occurred. Please try again.');
+                }
+            }
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             fetchUserData();

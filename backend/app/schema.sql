@@ -13,6 +13,7 @@ CREATE TABLE portfolio (
     ticker VARCHAR(10) NOT NULL,
     numShares INTEGER,
     id INTEGER,
+    purchasePrice DECIMAL(15, 2),
     FOREIGN KEY (id) REFERENCES user(id),
     UNIQUE (ticker, id)  -- This makes the combination of ticker and id unique
 );

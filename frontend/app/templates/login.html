@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>Login</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <header>
@@ -22,6 +23,10 @@
             <input type="text" id="username" name="username" required><br><br>
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required><br><br>
+
+            <!-- reCAPTCHA widget -->
+            <div class="g-recaptcha" data-sitekey="6LdtC40qAAAAAER3z6dULo3ggS80xz5wAlQV-rfF"></div><br><br>
+
             <p id="message" class="flash"></p>
             <input type="submit" value="Login" class="button">
             <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
@@ -37,15 +42,22 @@
 
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
+            const recaptchaResponse = grecaptcha.getResponse();  // Get reCAPTCHA response
+
+            if (!recaptchaResponse) {
+                document.getElementById("message").textContent = "Please complete the reCAPTCHA.";
+                document.getElementById("message").style.color = "red";
+                return;
+            }
 
             try {
                 const response = await fetch("http://127.0.0.1:5000/api/user/login", {
                     method: "POST",
-                    credentials: 'include', // ensures the cookies are sent for session maintenence
+                    credentials: 'include', // ensures the cookies are sent for session maintenance
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ username, password, recaptcha_response: recaptchaResponse })
                 });
 
                 const data = await response.json();

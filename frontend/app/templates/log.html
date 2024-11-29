@@ -8,19 +8,7 @@
     <title>Log</title>
 </head>
 <body>
-    <header>
-        <div class="topnav">
-            <div class="pages">
-                <a href="{{ url_for('index') }}">Portfolio</a>
-                <a href="{{ url_for('trade') }}">Trade</a>
-                <a class="active" href="{{ url_for('log') }}">Log</a>
-            </div>
-            <div class="logout">
-                <a href="{{ url_for('logout') }}">Logout</a>
-            </div>
-        </div>
-    </header>
-
+    {% include 'header.html' %}
     <main>
         <h2>Log</h2>
         <div>

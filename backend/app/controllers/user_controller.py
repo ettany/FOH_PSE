@@ -1,16 +1,30 @@
-from flask import Blueprint, request, jsonify, flash, session, make_response
-from werkzeug.security import generate_password_hash, check_password_hash
+import requests
+from flask import Blueprint, request, jsonify, session
+from werkzeug.security import check_password_hash, generate_password_hash
 from ..db import get_db
 import datetime
+import os
 
 user_bp = Blueprint('user', __name__)
-
+RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 @user_bp.route('/login', methods=['POST'])
 def login():
-
     data = request.get_json()  # Get JSON data from the request
     username = data.get('username')
     password = data.get('password')
+    recaptcha_response = data.get('recaptcha_response')
+
+    # Verify reCAPTCHA response
+    recaptcha_payload = {
+        'secret': RECAPTCHA_SECRET_KEY,
+        'response': recaptcha_response
+    }
+    recaptcha_verify_url = "https://www.google.com/recaptcha/api/siteverify"
+    recaptcha_result = requests.post(recaptcha_verify_url, data=recaptcha_payload)
+    recaptcha_json = recaptcha_result.json()
+
+    if not recaptcha_json.get('success'):
+        return jsonify({"error": "reCAPTCHA verification failed."}), 400
 
     # Check the credentials against the database
     try:
@@ -28,8 +42,8 @@ def login():
             session.permanent = True  # Make session permanent if desired
             try:
                 db_conn.execute(
-                "INSERT INTO eventLog (id, eventName, stockSold, stockBought, date) VALUES (?, ?, NULL, NULL, ?)",
-                (user["id"], "Logged on", timestamp)
+                    "INSERT INTO eventLog (id, eventName, stockSold, stockBought, date) VALUES (?, ?, NULL, NULL, ?)",
+                    (user["id"], "Logged on", timestamp)
                 )
                 db_conn.commit()
 
@@ -39,7 +53,6 @@ def login():
             
             print("Session set: ", session)
             if username == "administration":
-
                 return jsonify({"message": "Admin login successful!", "user": username}), 200
             else:
                 return jsonify({"message": "User login successful!", "user": username, "totalCash": user["totalCash"], "user_id": user["id"]}), 200
@@ -49,7 +62,7 @@ def login():
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": "Database connection error"}), 500
-
+    
 @user_bp.route('/logout', methods=['POST'])
 def logout():
     try:
