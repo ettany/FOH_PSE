@@ -53,20 +53,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Example stock 1</td>
-                            <td>-0.05%</td>
-                            <td>-$5.67</td>
-                        </tr>
-                        <tr>
-                            <td>Example stock 2</td>
-                            <td>+1.35%</td>
-                            <td>+$5.20</td>
-                        </tr>
+                        
                     </tbody>
                 </table>
             </div>
-            <div id="stocks-chart" class="chart-container"></div>
+            <div id="stocks-chart" class="chart-container">
+                <svg width="600" height="400">
+                    <g transform="translate(60,20)">
+                        <g class="x-axis"></g>
+                        <g class="y-axis"></g>
+                    </g>
+                </svg>
+            </div>
         </section>
     </main>
     <footer>
@@ -97,7 +95,7 @@
             }
         }
 
-        // Fetch and update portfolio table and chart
+
         async function fetchPortfolio() {
             try {
                 const response = await fetch("http://127.0.0.1:5000/api/transaction/portfolio", {
@@ -111,14 +109,7 @@
 
                 const stocksTableBody = document.querySelector("#stocks_owned tbody");
                 stocksTableBody.innerHTML = ""; // Clear existing rows
-
-                const scatterPlotData = data.map(stock => ({
-                    change: ((stock.currentPrice - stock.purchasePrice) / stock.purchasePrice) * 100,
-                    profit: stock.currentPrice - stock.purchasePrice
-                }));
-
-                drawScatterPlotChart(scatterPlotData);
-                data.forEach(stock => {
+                const scatterPlotData = data.map(stock => {
                     const row = document.createElement("tr");
 
                     // Create table cells
@@ -129,17 +120,23 @@
                     const currentPrice = stock.currentPrice;
                     const purchasePrice = stock.purchasePrice;
 
-                    // Calculate the percentage change based on the purchase price
                     let price_change_percent = 0;
+                    let price_change = 0;
+
                     if (purchasePrice > 0) {
-                        price_change_percent = ((currentPrice - purchasePrice) / purchasePrice) * 100;
+                        price_change = currentPrice - purchasePrice;
+                        price_change_percent = (price_change / purchasePrice) * 100;
+                    }
+
+                    if (currentPrice === purchasePrice) {
+                        price_change = 0;
+                        price_change_percent = 0;
                     }
 
                     changeCell.textContent = `${price_change_percent.toFixed(2)}%`;
                     changeCell.style.color = price_change_percent >= 0 ? "green" : "red";
 
                     const profitCell = document.createElement("td");
-                    const price_change = currentPrice - purchasePrice;
                     profitCell.textContent = `$${price_change.toFixed(2)}`;
                     profitCell.style.color = price_change >= 0 ? "green" : "red";
 
@@ -150,14 +147,22 @@
 
                     // Append the row to the table body
                     stocksTableBody.appendChild(row);
+                    return {
+                        stock: stock.ticker,
+                        change: price_change_percent,
+                        profit: price_change,
+                    };
                 });
+                console.log(scatterPlotData);
+                drawScatterPlotChart(scatterPlotData);
 
-                
             } catch (error) {
                 console.error("Error fetching portfolio:", error);
                 alert("Failed to load portfolio. Please try again.");
             }
         }
+
+
         async function logout(event) {
                 event.preventDefault();
                 const redirectUrl = event.target.getAttribute('data-url');
@@ -187,7 +192,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             fetchUserData();
             fetchPortfolio();
-            setInterval(fetchPortfolio, 3000);
+            // setInterval(fetchPortfolio, 3000);
         });
     </script>
 </body>
