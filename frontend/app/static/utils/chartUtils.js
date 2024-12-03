@@ -118,14 +118,11 @@ export function drawScatterPlotChart(data) {
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
-    // Select the SVG container and group element
     const svg = d3.select('#stocks-chart svg g');
 
-    // Calculate padding for domain adjustments
-    const xPadding = (d3.max(data, d => d.change) - d3.min(data, d => d.change)) * 0.1 || 1; // Percentage padding
-    const yPadding = (d3.max(data, d => d.profit) - d3.min(data, d => d.profit)) * 0.1 || 1; // Profit padding
+    const xPadding = (d3.max(data, d => d.change) - d3.min(data, d => d.change)) * 0.1 || 1;
+    const yPadding = (d3.max(data, d => d.profit) - d3.min(data, d => d.profit)) * 0.1 || 1;
 
-    // Define scales with domains centered around 0
     const x = d3.scaleLinear()
         .domain([
             Math.min(0, d3.min(data, d => d.change) - xPadding),
@@ -140,19 +137,17 @@ export function drawScatterPlotChart(data) {
         ])
         .range([height, 0]);
 
-    // Update x-axis and y-axis
     svg.select('.x-axis')
-        .attr('transform', `translate(0,${y(0)})`) // Place x-axis at y=0
+        .attr('transform', `translate(0,${y(0)})`)
         .transition().duration(750)
-        .call(d3.axisBottom(x).tickFormat(d => `${d}%`)); // Format ticks as percentage
+        .call(d3.axisBottom(x).tickFormat(d => `${d}%`));
 
     svg.select('.y-axis')
-        .attr('transform', `translate(${x(0)},0)`) // Place y-axis at x=0
+        .attr('transform', `translate(${x(0)},0)`)
         .transition().duration(750)
-        .call(d3.axisLeft(y).tickFormat(d => `$${d.toFixed(2)}`)); // Format ticks as currency
+        .call(d3.axisLeft(y).tickFormat(d => `$${d.toFixed(2)}`));
 
-    // Add x-axis label
-    svg.select('.x-axis-label').remove(); // Remove old label if any
+    svg.select('.x-axis-label').remove();
     svg.append('text')
         .attr('class', 'x-axis-label')
         .attr('x', width / 2)
@@ -160,8 +155,7 @@ export function drawScatterPlotChart(data) {
         .attr('text-anchor', 'middle')
         .text('Change (%)');
 
-    // Add y-axis label
-    svg.select('.y-axis-label').remove(); // Remove old label if any
+    svg.select('.y-axis-label').remove();
     svg.append('text')
         .attr('class', 'y-axis-label')
         .attr('x', -height / 2)
@@ -170,21 +164,36 @@ export function drawScatterPlotChart(data) {
         .attr('transform', 'rotate(-90)')
         .text('Profit ($)');
 
-    // Bind data and update dots
     const dots = svg.selectAll('.dot').data(data);
 
-    // Enter new dots
     dots.enter()
         .append('circle')
         .attr('class', 'dot')
         .attr('r', 6)
-        .merge(dots) // Update existing dots
+        .merge(dots)
         .transition().duration(750)
         .attr('cx', d => x(d.change))
         .attr('cy', d => y(d.profit))
         .attr('fill', d => d.profit >= 0 ? 'steelblue' : 'red');
 
-    // Remove old dots
     dots.exit().remove();
+
+    // Add stock names as labels
+    const labels = svg.selectAll('.label').data(data);
+
+    labels.enter()
+        .append('text')
+        .attr('class', 'label')
+        .merge(labels)
+        .transition().duration(750)
+        .attr('x', d => x(d.change) + 8) // Offset label slightly to the right of the dot
+        .attr('y', d => y(d.profit))
+        .text(d => d.ticker)
+        .attr('font-size', '12px')
+        .attr('fill', 'black');
+
+    labels.exit().remove();
 }
+
+
 

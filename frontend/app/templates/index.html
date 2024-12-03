@@ -255,7 +255,12 @@
 
             return { ticker: stock.ticker, profit: priceChange, currentPrice };
         });
-
+        // // Sample data for the chart
+        // const testdata = [
+        //     { ticker: "Example stock 1", change: -0.05, profit: -5.67 },
+        //     { ticker: "Example stock 2", change: 1.35, profit: 5.20 }
+        // ];
+        // drawScatterPlotChart(testdata);
         drawScatterPlotChart(scatterPlotData);
     } catch (error) {
         console.error("Error fetching portfolio data:", error);
