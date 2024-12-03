@@ -75,8 +75,5 @@ flask --app backend/server.py run
 ## Running frontend
 python frontend/interface.py
 
-## MIDSEMESTER DEMO
-https://www.youtube.com/watch?v=jCZ426may-Q 
-
 ## FINAL DEMO
-TBC
+https://www.youtube.com/watch?v=7XaVBbRt8u4 
