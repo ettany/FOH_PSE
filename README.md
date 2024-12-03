@@ -36,8 +36,9 @@ Berkan Guven: Facial Recognition Lead
   - ability to buy, sell, or adjust stock​s
 
   - graph of searched stock's performance over the last 30 days
- <img width="500" alt="Screenshot 2024-10-29 at 11 25 47 AM" src="https://github.com/user-attachments/assets/f0ba1be4-36a2-49d3-adcc-21b5caa0a401">
-    
+
+    <img width="1317" alt="image" src="https://github.com/user-attachments/assets/6ad5f019-9578-44bd-90f1-19cce35e7d58">
+
 
 - <b>Log page​ </b>
 
