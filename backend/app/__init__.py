@@ -1,9 +1,11 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
 from flask_apscheduler import APScheduler
+from flask_swagger_ui import get_swaggerui_blueprint
+
 
 scheduler = APScheduler()
 
@@ -38,6 +40,19 @@ def create_app():
     app.register_blueprint(stock_bp, url_prefix='/api/stock')
     app.register_blueprint(transaction_bp, url_prefix='/api/transaction')
     scheduler.init_app(app)  
-    scheduler.start()      
+    scheduler.start()
+
+    # Swagger UI setup
+    SWAGGER_URL = '/api/docs'
+    API_URL = '/swagger.json'
+    swaggerui_bp = get_swaggerui_blueprint(SWAGGER_URL, API_URL)
+    app.register_blueprint(swaggerui_bp)
+
+    # Swagger JSON route
+    @app.route('/swagger.json')
+    def swagger_spec():
+        from flask_swagger import swagger
+        with app.app_context():
+            return jsonify(swagger(app))
 
     return app

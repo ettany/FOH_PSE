@@ -31,3 +31,4 @@ CREATE TABLE eventLog (
     FOREIGN KEY(totalCash) REFERENCES user(totalCash)
 );
 
+
