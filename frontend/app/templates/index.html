@@ -253,7 +253,7 @@
             row.append(stockCell, priceAtPurchaseCell, currentPriceCell, changeCell, profitCell);
             stocksTableBody.appendChild(row);
 
-            return { ticker: stock.ticker, profit: priceChange, currentPrice };
+            return { ticker: stock.ticker, profit: priceChange, change: priceChangePercent };
         });
         // // Sample data for the chart
         // const testdata = [
@@ -266,10 +266,9 @@
         console.error("Error fetching portfolio data:", error);
     }
 }
-
-
         fetchUserData();
         fetchPortfolio();
+        setInterval(fetchPortfolio, 3000);
     </script>
 </body>
 </html>
