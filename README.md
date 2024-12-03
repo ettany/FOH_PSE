@@ -26,6 +26,9 @@ Berkan Guven: Facial Recognition Lead
     - displays user balance and stock portfolio
 
     - graph of profit
+ 
+    <img width="500" alt="image" src="https://github.com/user-attachments/assets/23a67ab7-949f-4f85-b07e-39de830b3794">
+
 
 - <b>Trade page </b>
 
@@ -43,6 +46,9 @@ Berkan Guven: Facial Recognition Lead
 - <b>Log page​ </b>
 
     - table log of activities with details for: buy, sell, scheduled buy/sell, logging on, logging out
+ 
+  <img width="500" alt="image" src="https://github.com/user-attachments/assets/9ba34ec8-1c27-4211-a442-a97ee9137d05">
+
  
 # Developing the product to ensure compatibility:​
 
