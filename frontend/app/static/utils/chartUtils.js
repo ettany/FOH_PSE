@@ -87,6 +87,16 @@ export function drawLineChart(data) {
         .attr('class', 'y-axis')
         .call(d3.axisLeft(y));
 
+    const area = d3.area()
+        .x(d => x(d.date))
+        .y0(height)
+        .y1(d => y(d.price));
+
+    svg.append('path')
+        .datum(data)
+        .attr('fill', 'lightblue')
+        .attr('d', area);
+
     const line = d3.line()
         .x(d => x(d.date))
         .y(d => y(d.price));
@@ -98,8 +108,9 @@ export function drawLineChart(data) {
         .attr('stroke-width', 2)
         .attr('d', line);
 
-    console.log('Line chart drawn successfully');
+    console.log('Line chart with area drawn successfully');
 }
+
 
 // Function to draw scatter plot the D3 chart with new data
 export function drawScatterPlotChart(data) {

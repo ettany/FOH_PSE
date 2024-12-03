@@ -6,6 +6,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>Register</title>
+    <style>
+        /* Registration page specific styling */
+        body {
+            background-color: #eaeaea;
+        }
+
+        .rform {
+            background: white;
+            padding: 30px;
+            margin: 50px auto;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .rform h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .rform form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rform label {
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .rform input[type="text"],
+        .rform input[type="password"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .rform input[type="submit"] {
+            background: #007BFF;
+            color: black;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .rform input[type="submit"]:hover {
+            background: #0154ad;
+        }
+
+        .rform p {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .rform a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .rform a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+
 </head>
 <body>
     <header>
@@ -19,11 +92,11 @@
         <h2>Registration</h2>
         <form id="registerForm">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required><br><br>
+            <input type="text" id="username" name="username" required>
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required><br><br>
+            <input type="password" id="password" name="password" required>
             <p id="message" class="flash"></p>
-            <input type="submit" value="Register" class="button">
+            <input type="submit" value="Register">
             <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
         </form>
     </div>
@@ -37,6 +110,8 @@
         <button id="takePhotoButton">Take Photo</button>
         <button id="closeWebcam">Close</button>
     </div>
+
+
 
     <script>
         const registerForm = document.getElementById("registerForm");
@@ -76,7 +151,7 @@
             fetch("http://127.0.0.1:5000/api/user/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     username: document.getElementById("username").value,
                     password: document.getElementById("password").value,
                     photoData
@@ -85,11 +160,11 @@
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
-                    alert(data.message); 
+                    alert(data.message);
                     closeFaceRecognitionPopup();
                     window.location.href = "{{ url_for('login') }}";
                 } else {
-                    alert(data.error || "Error saving photo."); 
+                    alert(data.error || "Error saving photo.");
                 }
             })
             .catch((error) => {

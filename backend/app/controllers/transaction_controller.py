@@ -10,12 +10,15 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from app import scheduler  # Import directly from app/__init__.py
 from flask import current_app
+import pytz
 
 
 # Create a Flask blueprint for stock-related routes
 transaction_bp = Blueprint('transaction', __name__)
 
 # API route to buy stocks
+
+
 @transaction_bp.route('/buy', methods=['POST'])
 def buy():
     data = request.get_json()
@@ -55,8 +58,12 @@ def buy():
                         (totalCost, session['username']))
 
         # Log the buying action
-        db_conn.execute("INSERT INTO eventLog (id, eventName, stockBought) VALUES (?, ?, ?)",
-                        (id['id'], 'Bought', ticker))
+        print("loading event log!!!")
+        newCash = cash['totalCash'] - totalCost
+        print(cash['totalCash'])
+        db_conn.execute("INSERT INTO eventLog (id, totalCash, eventName, stockBought) VALUES (?, ?, ?, ?)",
+                        (id['id'], newCash, 'Bought', ticker))
+        print("--------------------------")
 
         # Check if the stock already exists in the portfolio
         existing_stock = db_conn.execute(
@@ -83,6 +90,8 @@ def buy():
         return jsonify({"error": "Insufficient funds"}), 400
 
 # API route to sell stocks
+
+
 @transaction_bp.route('/sell', methods=['POST'])
 def sell():
     data = request.get_json()
@@ -119,10 +128,11 @@ def sell():
         # Update the user's cash balance
         db_conn.execute(
             "UPDATE user SET totalCash = totalCash + ? WHERE id = ?", (totalProfit, id['id']))
-
+        cash = db_conn.execute(
+            "SELECT totalCash FROM user WHERE username = ?", (session['username'],)).fetchone()
         # Log the selling action
         db_conn.execute(
-            "INSERT INTO eventLog (id, eventName, stockSold) VALUES (?, ?, ?)", (id['id'], 'Sold', ticker))
+            "INSERT INTO eventLog (id, totalCash, eventName, stockSold) VALUES (?, ?, ?, ?)", (id['id'], cash['totalCash'], 'Sold', ticker))
 
         # Update the portfolio by reducing the shares
         db_conn.execute(
@@ -153,7 +163,7 @@ def get_portfolio():
         return jsonify({"error": "User not found"}), 404
 
     portfolio = db_conn.execute(
-        "SELECT ticker, numShares FROM portfolio WHERE id = ?", (user_id['id'],)).fetchall()
+        "SELECT ticker, purchasePrice, numShares FROM portfolio WHERE id = ?", (user_id['id'],)).fetchall()
 
     response_data = []
     for stock in portfolio:
@@ -161,11 +171,13 @@ def get_portfolio():
         numShares = stock['numShares']
         stock_info = yf.Ticker(ticker).info
         current_price = stock_info.get("currentPrice", 0)
+        print(f"current Price: {current_price}")
         previous_close = stock_info.get("regularMarketPreviousClose", 0)
-
-        price_change = current_price - previous_close
+        purchase_price = stock['purchasePrice']
+        print(f"purchase Price: {purchase_price}")
+        price_change = current_price - purchase_price
         if previous_close:
-            price_change_percent = (price_change / previous_close) * 100
+            price_change_percent = (price_change / purchase_price) * 100
         else:
             price_change_percent = 0  # Default or flag for first purchase
 
@@ -173,42 +185,49 @@ def get_portfolio():
             "ticker": ticker,
             "numShares": numShares,
             "currentPrice": current_price,
+            "purchasePrice": purchase_price,
             "price_change": price_change,
             "price_change_percent": price_change_percent,
             "isInitialPurchase": previous_close == 0
         })
 
     return jsonify(response_data), 200
+
+
 @transaction_bp.route('/schedule_buy', methods=['POST'])
 def schedule_buy():
     data = request.get_json()
     ticker = data.get("ticker")
     numShares = int(data.get("numShares"))
     username = data.get("username")
-    schedule_time = data.get("scheduleTime")  
+    schedule_time = data.get("scheduleTime")
     schedule_datetime = datetime.strptime(schedule_time, "%Y-%m-%dT%H:%M")
 
     try:
         scheduler.add_job(
-                func=buy,
-                trigger="date",
-                run_date=schedule_datetime,
-            kwargs={'app': current_app._get_current_object(), 'ticker': ticker, 'numShares': numShares, 'username': username},
-                id=f"{username}-{ticker}-{schedule_time}",  
-                replace_existing=True
-            )
+            func=buy,
+            trigger="date",
+            run_date=schedule_datetime,
+            kwargs={'app': current_app._get_current_object(
+            ), 'ticker': ticker, 'numShares': numShares, 'username': username},
+            id=f"{username}-{ticker}-{schedule_time}",
+            replace_existing=True
+        )
         print(f"Job scheduled: {username}-{ticker} at {schedule_time}")
 
         return jsonify({"message": "Stock buy scheduled successfully", "schedule_time": schedule_time}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 def buy(app, ticker, numShares, username):
-    with app.app_context(): 
+    with app.app_context():
         try:
             print(f"Executing buy job: {ticker}, {numShares}, {username}")
             stock = yf.Ticker(ticker)
             stock_info = stock.info
 
+            purchasePrice = stock_info.get("currentPrice", 0)
             totalCost = numShares * stock_info.get("currentPrice", 0)
             db_conn = get_db()
             id = db_conn.execute(
@@ -225,12 +244,13 @@ def buy(app, ticker, numShares, username):
                 db_conn.execute("UPDATE user SET totalCash = totalCash - ? WHERE username = ?",
                                 (totalCost, username))
                 # Log the buying action
-                db_conn.execute("INSERT INTO eventLog (id, eventName, stockBought) VALUES (?, ?, ?)",
-                                (id['id'], 'Bought', ticker))
+                newCash = cash['totalCash'] - totalCost
+                db_conn.execute("INSERT INTO eventLog (id, totalCash, eventName, stockBought) VALUES (?, ?, ?, ?)",
+                                (id['id'], newCash, 'Bought', ticker))
                 # Insert stocks into portfolio
                 db_conn.execute(
-                    "INSERT INTO portfolio (ticker, numShares, id) VALUES (?, ?, ?) ON CONFLICT (ticker, id) DO UPDATE SET numShares = numShares + ?",
-                    (ticker, numShares, id['id'], numShares))
+                    "INSERT INTO portfolio (ticker, purchasePrice, numShares, id) VALUES (?, ?, ?, ?) ON CONFLICT (ticker, id) DO UPDATE SET numShares = numShares + ?",
+                    (ticker, purchasePrice, numShares, id['id'], numShares))
                 db_conn.commit()
                 print(f"Stock bought successfully: {ticker} by {username}")
                 return {"message": "Stock bought successfully", "totalCost": totalCost}
@@ -239,55 +259,61 @@ def buy(app, ticker, numShares, username):
                 return {"error": "Insufficient funds"}
         except Exception as e:
             print(f"Error in scheduled job: {str(e)}")
+
+
 @transaction_bp.route('/schedule_sell', methods=['POST'])
 def schedule_sell():
     data = request.get_json()
     ticker = data.get("ticker")
     numShares = int(data.get("numShares"))
     username = data.get("username")
-    schedule_time = data.get("scheduleTime") 
+    schedule_time = data.get("scheduleTime")
 
     scheduler.add_job(
         func=sell,
         trigger="date",
         run_date=schedule_time,
-            kwargs={'app': current_app._get_current_object(), 'ticker': ticker, 'numShares': numShares, 'username': username},
-        id=f"{username}-{ticker}-{schedule_time}", 
+        kwargs={'app': current_app._get_current_object(
+        ), 'ticker': ticker, 'numShares': numShares, 'username': username},
+        id=f"{username}-{ticker}-{schedule_time}",
         replace_existing=True
     )
     print(f"Job scheduled: {username}-{ticker} at {schedule_time}")
 
     return jsonify({"message": f"Sell job scheduled for {schedule_time}"}), 200
+
+
 def sell(app, ticker, numShares, username):
-    with app.app_context(): 
+    with app.app_context():
         stock = yf.Ticker(ticker)
         stock_info = stock.info
 
         totalProfit = numShares * stock_info.get("currentPrice", 0)
         db_conn = get_db()
         id = db_conn.execute(
-                "SELECT id FROM user WHERE username = ?", (username,)).fetchone()
+            "SELECT id FROM user WHERE username = ?", (username,)).fetchone()
         if id is None:
-                return jsonify({"error": "User not found"}), 404
+            return jsonify({"error": "User not found"}), 404
 
         currentShares = db_conn.execute(
-                "SELECT numShares FROM portfolio WHERE id = ? AND ticker = ?", (id['id'], ticker)).fetchone()
-            
+            "SELECT numShares FROM portfolio WHERE id = ? AND ticker = ?", (id['id'], ticker)).fetchone()
+
         if currentShares is None:
-                return jsonify({"error": "No shares found in portfolio"}), 404
+            return jsonify({"error": "No shares found in portfolio"}), 404
 
         if currentShares['numShares'] >= numShares:
-                # Update user's total cash
-                db_conn.execute(
-                    "UPDATE user SET totalCash = totalCash + ? WHERE id = ?", (totalProfit, id['id']))
-                # Log the selling action
-                db_conn.execute(
-                    "INSERT INTO eventLog (id, eventName, stockBought) VALUES (?, ?, ?)", (id['id'], 'Sold', ticker))
-                # Update shares in portfolio
-                db_conn.execute(
-                    "UPDATE portfolio SET numShares = numShares - ? WHERE id = ? AND ticker = ?", (numShares, id['id'], ticker))
-                db_conn.commit()
-                return jsonify({"message": "Stock sold successfully", "totalProfit": totalProfit}), 200
+            # Update user's total cash
+            db_conn.execute(
+                "UPDATE user SET totalCash = totalCash + ? WHERE id = ?", (totalProfit, id['id']))
+            # Log the selling action
+            cash = db_conn.execute(
+                "SELECT totalCash FROM user WHERE username = ?", (username,)).fetchone()
+            db_conn.execute(
+                "INSERT INTO eventLog (id, totalCash, eventName, stockBought) VALUES (?, ?, ?, ?)", (id['id'], cash, 'Sold', ticker))
+            # Update shares in portfolio
+            db_conn.execute(
+                "UPDATE portfolio SET numShares = numShares - ? WHERE id = ? AND ticker = ?", (numShares, id['id'], ticker))
+            db_conn.commit()
+            return jsonify({"message": "Stock sold successfully", "totalProfit": totalProfit}), 200
         else:
-                return jsonify({"error": "Not enough shares to sell"}), 400
-
+            return jsonify({"error": "Not enough shares to sell"}), 400
